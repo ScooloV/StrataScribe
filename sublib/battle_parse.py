@@ -31,6 +31,9 @@ def init_parse():
     _stratagem_phases_dict = wahapedia_db.get_dict_from_csv("StratagemPhases.csv")
     _stratagems_dict = wahapedia_db.get_dict_from_csv("Stratagems.csv")
 
+    if not os.path.exists(battlescribe_folder):
+        os.mkdir(battlescribe_folder)
+
 
 def parse_battlescribe(battlescribe_file_name):
     _read_ros_file(battlescribe_file_name)
