@@ -14,6 +14,7 @@ file_list_path = os.path.abspath(os.path.join(wahapedia_path, "_file_list.json")
 def init_db():
     if not os.path.exists(wahapedia_path):
         os.mkdir(wahapedia_path)
+        _create_file_list()
     for wahapedia_csv in wahapedia_csv_list:
         _check_csv(wahapedia_csv)
 
@@ -29,11 +30,7 @@ def _check_csv(csv_name):
 def _check_file_list(csv_name):
     if not os.path.exists(file_list_path):
         print(file_list_path + " not exists, creating new")
-        empty_file_list = {}
-        with open(file_list_path, "w") as fl:
-            for wahapedia_csv in wahapedia_csv_list:
-                empty_file_list[wahapedia_csv] = datetime.min.isoformat()
-            json.dump(empty_file_list, fl)
+        _create_file_list()
 
     with open(file_list_path, "r") as fl:
         current_file_list_json = json.load(fl)
@@ -45,6 +42,13 @@ def _check_file_list(csv_name):
             return False
         return True
 
+
+def _create_file_list():
+    empty_file_list = {}
+    with open(file_list_path, "w") as fl:
+        for wahapedia_csv in wahapedia_csv_list:
+            empty_file_list[wahapedia_csv] = datetime.min.isoformat()
+        json.dump(empty_file_list, fl)
 
 def _register_file_list(csv_path):
     with open(file_list_path, "r") as fl:
