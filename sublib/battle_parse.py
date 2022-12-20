@@ -1,7 +1,6 @@
+import os
 import pathlib
 import zipfile
-import os
-import json
 
 import xmltodict
 
@@ -51,8 +50,12 @@ def _read_ros_file(file_name):
     file_path = os.path.join(battlescribe_folder, file_name)
     if pathlib.Path(file_path).suffix == ".rosz":
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
-            zip_ref.extractall(battlescribe_folder)
-        ros_file_name = file_name[:-1]
+            rosz_packed_filename = zip_ref.infolist()[0].filename
+            battlescribe_tmp = os.path.join(battlescribe_folder, "tmp")
+            ros_file_name = file_name[:-1]
+
+            zip_ref.extractall(battlescribe_tmp)
+            os.rename(os.path.join(battlescribe_tmp, rosz_packed_filename), os.path.join(battlescribe_folder, ros_file_name))
 
     _ros_dict = _get_dict_from_xml(ros_file_name)
 

@@ -1,6 +1,6 @@
+import csv
 import json
 import os
-import csv
 from datetime import datetime, timedelta
 
 import requests
