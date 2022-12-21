@@ -1,6 +1,7 @@
 import os
 import pathlib
 import zipfile
+from datetime import datetime, timedelta
 
 from lxml import html
 
@@ -47,6 +48,8 @@ def parse_battlescribe(battlescribe_file_name):
     wh_stratagems = _find_stratagems(wh_units)
     result_phase = _prepare_stratagems_phase(wh_stratagems, wh_faction)
     result_units = _prepare_stratagems_units(wh_stratagems, wh_units, wh_faction)
+
+    _delete_old_files()
     return result_phase, result_units, _get_full_stratagems_list()
 
 
@@ -54,7 +57,7 @@ def _get_full_stratagems_list():
     global _full_stratagems_list
     full_list = []
     for stratagem_id in _full_stratagems_list:
-        clean_stratagem = _clean_full_stratagem(_get_stratagem_from_id(stratagem_id)) 
+        clean_stratagem = _clean_full_stratagem(_get_stratagem_from_id(stratagem_id))
         full_list.append(clean_stratagem)
 
     return full_list
@@ -67,6 +70,7 @@ def _clean_full_stratagem(stratagem_dict):
     result_stratagem["description"] = _clean_html(result_stratagem["description"])
 
     return result_stratagem
+
 
 def _read_ros_file(file_name):
     global _ros_dict
@@ -183,8 +187,25 @@ def _get_stratagem_from_id(stratagem_id):
         if stratagem["id"] == stratagem_id:
             return stratagem
 
+
 def _clean_html(html_string):
     return str(html.fromstring(html_string).text_content())
+
+
+def _delete_old_files():
+    file_list = os.listdir(battlescribe_folder)
+    for single_file in file_list:
+        single_file_path = os.path.join(battlescribe_folder, single_file)
+        creation_time = datetime.fromtimestamp(os.path.getctime(single_file_path))
+        file_time_delta = datetime.now() - creation_time
+        if file_time_delta > timedelta(hours=1):
+            try:
+                os.remove(single_file_path)
+                print(single_file + " deleted")
+            except:
+                print("Can't delete " + single_file)
+
+
 def _get_dict_from_xml(xml_file_name):
     xml_file_path = os.path.join(battlescribe_folder, xml_file_name)
     with open(xml_file_path) as xml_file:
