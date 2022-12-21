@@ -20,11 +20,11 @@ def upload_file():
         if file_ext == ".ros" or file_ext == ".rosz":
             random_filename = str(uuid.uuid4()) + file_ext
             f.save(os.path.join(upload_directory, random_filename))
-            json_phase, json_units = battle_parse.parse_battlescribe(random_filename)
+            json_phase, json_units, json_stratagems = battle_parse.parse_battlescribe(random_filename)
             html_phase = prepare_html.convert_to_table(json_phase)
             html_units = prepare_html.convert_to_table(json_units)
-
-        return render_template("report.html", html_phase=html_phase, html_units=html_units)
+            html_stratagems = prepare_html.convert_to_table(json_stratagems)
+        return render_template("report.html", html_phase=html_phase, html_units=html_units, html_stratagems=html_stratagems)
 
     if request.method == 'GET':
         return render_template("upload.html")
