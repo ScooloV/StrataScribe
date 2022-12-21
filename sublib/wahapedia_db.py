@@ -50,6 +50,7 @@ def _create_file_list():
             empty_file_list[wahapedia_csv] = datetime.min.isoformat()
         json.dump(empty_file_list, fl)
 
+
 def _register_file_list(csv_path):
     with open(file_list_path, "r") as fl:
         current_file_list_json = json.load(fl)
@@ -70,6 +71,7 @@ def _download_file(file_url, folder_name):
                 f.write(chunk)
 
     return save_path
+
 
 def get_dict_from_csv(csv_file_name):
     results = []

@@ -3,17 +3,10 @@ import pathlib
 import zipfile
 from datetime import datetime, timedelta
 
+import xmltodict
 from lxml import html
 
-import xmltodict
-
-from sublib import wahapedia_db
-
-subfaction_types = ["Order", "Forge World", "Brotherhood", "Noble Household", "Chapter",
-                    "Allegiance", "Dread Household", "Legion", "Plague Company",
-                    "Great Cult", "Craftworld", "Kabal", "Wych Cult", "Haemonculus Coven", "Cult", "League", "Dynasty", "Clan", "Sept", "Hive Fleet"]
-
-selection_non_unit_types = ["**Chapter Selector**", "Game Type", "Detachment Command Cost"]
+from sublib import wahapedia_db, wh40k_lists
 
 battlescribe_folder = os.path.abspath("./battlescribe")
 
@@ -50,7 +43,10 @@ def parse_battlescribe(battlescribe_file_name):
     result_units = _prepare_stratagems_units(wh_stratagems, wh_units, wh_faction)
 
     _delete_old_files()
-    return result_phase, result_units, _get_full_stratagems_list()
+
+    result_phase_sorted = {j: result_phase[j] for j in sorted(result_phase, key=lambda i: wh40k_lists.phases_list.index(i))}
+
+    return result_phase_sorted, result_units, _get_full_stratagems_list()
 
 
 def _get_full_stratagems_list():
@@ -105,7 +101,7 @@ def _find_faction():
 
     if not is_subfaction:
         for selection in _ros_dict["roster"]["forces"]["force"]["selections"]["selection"]:
-            if selection["@name"] in subfaction_types:
+            if selection["@name"] in wh40k_lists.subfaction_types:
                 subfaction_name = selection["selections"]["selection"]["@name"]
                 for faction in _factions_dict:
                     if faction["name"] in subfaction_name or subfaction_name in faction["name"]:
@@ -119,7 +115,7 @@ def _find_units(faction_id):
     result_units = []
 
     for unit in _ros_dict["roster"]["forces"]["force"]["selections"]["selection"]:
-        if unit["@name"] not in selection_non_unit_types:
+        if unit["@name"] not in wh40k_lists.selection_non_unit_types:
             for datasheet in _datasheets_dict:
                 if faction_id["id"] == datasheet["faction_id"] or faction_id["parent_id"] == datasheet["faction_id"]:
                     if datasheet["name"] == unit["@name"]:
@@ -146,7 +142,7 @@ def _prepare_stratagems_phase(stratagems_id, faction_id):
         for stratagem_phase in _stratagem_phases_dict:
             if stratagem_phase["stratagem_id"] == stratagem_id["stratagem_id"]:
                 full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"])
-                if full_stratagem["subfaction_id"] == "" or full_stratagem["subfaction_id"] == faction_id["id"] or full_stratagem["subfaction_id"] == faction_id["parent_id"]:
+                if full_stratagem["subfaction_id"] == "" or full_stratagem["subfaction_id"] == full_stratagem["faction_id"] or full_stratagem["subfaction_id"] == faction_id["id"]:
                     if stratagem_phase["phase"] not in result_stratagems_phase:
                         # result_stratagems_phase[stratagem_phase["phase"]] = [stratagem_id["stratagem_id"]]
                         result_stratagems_phase[stratagem_phase["phase"]] = [full_stratagem["name"]]
@@ -168,7 +164,7 @@ def _prepare_stratagems_units(stratagems_id, units_id, faction_id):
         for stratagem_id in stratagems_id:
             if stratagem_id["datasheet_id"] == unit_id["id"]:
                 full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"])
-                if full_stratagem["subfaction_id"] == "" or full_stratagem["subfaction_id"] == faction_id["id"] or full_stratagem["subfaction_id"] == faction_id["parent_id"]:
+                if full_stratagem["subfaction_id"] == "" or full_stratagem["subfaction_id"] == full_stratagem["faction_id"] or full_stratagem["subfaction_id"] == faction_id["id"]:
                     if unit_id["name"] not in results_stratagems_units:
                         # results_stratagems_units[unit_id["name"]] = [stratagem_id["stratagem_id"]]
                         results_stratagems_units[unit_id["name"]] = [full_stratagem["name"]]
