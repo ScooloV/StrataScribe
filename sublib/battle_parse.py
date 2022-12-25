@@ -42,11 +42,15 @@ def parse_battlescribe(battlescribe_file_name, request_options):
         init_parse()
 
     _full_stratagems_list = []
+    wh_empty_stratagems = []
 
     _read_ros_file(battlescribe_file_name)
     wh_faction = _find_faction()
     wh_units = _find_units(wh_faction)
-    wh_empty_stratagems = _filter_empty_stratagems(wh_faction)
+
+    if "show_empty" in request_options and request_options["show_empty"] == "on":
+        wh_empty_stratagems = _filter_empty_stratagems(wh_faction)
+
     wh_stratagems = _find_stratagems(wh_units)
 
     result_phase = _prepare_stratagems_phase(wh_stratagems + wh_empty_stratagems, wh_units, wh_faction, request_options)
