@@ -4,7 +4,7 @@ subfaction_types = ["Order", "Forge World", "Brotherhood", "Noble Household", "C
 
 selection_non_unit_types = ["**Chapter Selector**", "Game Type", "Detachment Command Cost"]
 
-phases_list = ["Any time", "Before battle", "During deployment", "At the start of battle round", "Any phase", "At the start of your turn",
+phases_list = ["Any time", "Before battle", "During deployment", "At the start of battle round", "Any phase", "Any of your phases", "At the start of your turn",
                "At the start of enemy turn", "Command phase", "Enemy Command phase", "Movement phase", "Enemy Movement phase", "Psychic phase",
-               "Enemy Psychic phase", "Shooting phase", "Enemy Shooting phase", "Being targeted", "Charge phase", "Enemy Charge phase",
-               "Fight phase", "Enemy Fight phase", "Morale phase", "Enemy Morale phase", "Taking casualties", "Enemy taking casualties", "End of your turn"]
+               "Enemy Psychic phase", "Shooting phase", "Enemy Shooting phase", "Being targeted", "Charge phase", "Enemy Charge phase", "Fight phase",
+               "Enemy Fight phase", "Morale phase", "Enemy Morale phase", "Taking casualties", "Enemy taking casualties", "End of your turn"]

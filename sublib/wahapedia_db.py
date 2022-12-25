@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+import time
 from datetime import datetime, timedelta
 
 import requests
@@ -71,13 +72,20 @@ def _register_file_list(csv_path):
 
 
 def _download_file(file_url, folder_name):
-    get_response = requests.get(file_url, stream=True)
     file_name = file_url.split("/")[-1]
     save_path = os.path.abspath(os.path.join(folder_name, file_name))
-    with open(save_path, 'wb') as f:
-        for chunk in get_response.iter_content(chunk_size=1024):
-            if chunk:  # filter out keep-alive new chunks
-                f.write(chunk)
+
+    file_size = 0
+    while file_size < 2048:
+        get_response = requests.get(file_url, stream=True)
+        with open(save_path, 'wb') as f:
+            for chunk in get_response.iter_content(chunk_size=1024):
+                if chunk:  # filter out keep-alive new chunks
+                    f.write(chunk)
+        file_size = os.stat(save_path).st_size
+        if file_size < 2048:
+            print("Anti Spam is working. Waiting for 5 second to try again.")
+            time.sleep(5)
 
     return save_path
 
