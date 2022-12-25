@@ -33,33 +33,38 @@
         <input type="submit"/>
 
         <div>
-            <input type="checkbox" id="show_units" name="show_units" checked>
+            <input class="form-check-input" type="checkbox" id="show_units" name="show_units" checked>
             <label for="show_units">Show Units ID in Phase Table </label>
         </div>
         <div>
-            <input type="checkbox" id="show_phases" name="show_phases" checked>
+            <input class="form-check-input" type="checkbox" id="show_phases" name="show_phases" checked>
             <label for="show_phases">Show Phases in Units Table </label>
         </div>
         <div>
-            <input type="checkbox" id="show_empty" name="show_empty" checked>
+            <input class="form-check-input" type="checkbox" id="show_empty" name="show_empty" checked>
             <label for="show_empty">Show no Unit Stratagems </label>
         </div>
+
     </form>
 </div>
 <hr/>
 <div class="container">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi porttitor eros at nisl viverra, hendrerit viverra mauris efficitur. Pellentesque rutrum ultrices ante, quis
-    tempor sapien elementum at. Praesent ornare viverra semper. Nullam vitae arcu vitae erat rutrum faucibus eu vel purus. Ut quis venenatis mauris, vel faucibus odio. Praesent
-    eleifend at ante vitae mollis. Etiam a eleifend lacus. Ut non nulla lorem. Interdum et malesuada fames ac ante ipsum primis in faucibus. Lorem ipsum dolor sit amet, consectetur
-    adipiscing elit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus enim mauris, egestas nec scelerisque vitae, porta sit amet
-    nisl. Praesent pellentesque id mauris ac porttitor. Integer sagittis diam vel massa faucibus imperdiet. Cras sodales quis urna vel commodo. Quisque felis justo, imperdiet sit
-    amet mattis viverra, lacinia ut lorem.
-    <br>
-    Suspendisse lobortis, magna eu aliquam lacinia, leo erat tincidunt ipsum, sed porta ipsum tellus quis lacus. Cras sit amet nulla porttitor, pharetra nunc eu, iaculis tellus.
-    Fusce laoreet interdum porta. Donec eu luctus magna. Mauris diam lectus, imperdiet ut feugiat id, pulvinar nec massa. Nullam viverra, urna quis scelerisque maximus, sapien
-    risus vehicula libero, ut tincidunt neque sem sed erat. Ut nec ipsum blandit dui eleifend auctor. Cras ac metus sit amet tortor ultricies finibus at eu tortor. Cras posuere
-    risus at nibh egestas volutpat. Nulla quis lorem id lectus sollicitudin fermentum feugiat nec ex. Suspendisse aliquam fringilla libero et pellentesque. Proin at auctor massa,
-    nec tincidunt purus. Etiam vitae laoreet enim. Sed sed fermentum erat.
+    <h4>How to use this tool</h4>
+    <ul>
+        <li>1) Select your battle scribe *.ros or *.rosz file</li>
+        <li>2) Select options you need</li>
+        <li>3) Press button and enjoy!</li>
+    </ul>
+    <h4>Options</h4>
+    <ul>
+        <li><i><b>Show Units ID in Phase Table</b></i></li>
+        <u>Stratagem by Phase</u> table will show, which stratagems can be used with which units. (<i>For Example: VENGEFUL SKIES [1] [2]</i>)<br>
+        <u>Stratagem by Unit</u> table will have ID for each unit. (<i>For Example: [1] Master of Possession, [2] Chaos Lord in Terminator Armour</i>)
+        <li><i><b>Show Phases in Units Table</b></i></li>
+        <u>Stratagem by Unit</u> table will have phase name for each stratagem ("Cp" for Command phase, "ESp" for Enemy Shooting phase etc). (<i>For Example: VESSELS FOR THE NEVERBORN [EFp] [Fp]</i>)
+        <li><i><b>Show no Unit Stratagems</b></i></li>
+        Some of Stratagems can be used anytime and don't require any Units for that. If this option is selected - they are added to <u>Stratagem by Phase</u> table.
+    </ul>
 </div>
 
 </body>
