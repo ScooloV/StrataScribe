@@ -1,6 +1,6 @@
 from json2html import json2html
 
-table_attributes = 'style="margin-top:10px; margin-left:10px; margin-bottom:10px;" border="2"'
+table_attributes = 'style="margin-top:10px; margin-left:10px; margin-bottom:10px;" border="2"; '
 
 
 def convert_to_table(json_dict):

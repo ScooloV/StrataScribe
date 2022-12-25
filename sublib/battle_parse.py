@@ -16,6 +16,8 @@ _datasheets_stratagems_dict = {}
 _factions_dict = {}
 _stratagem_phases_dict = {}
 _stratagems_dict = {}
+_empty_stratagems_list = []
+
 _full_stratagems_list = []
 
 
@@ -30,6 +32,8 @@ def init_parse():
     if not os.path.exists(battlescribe_folder):
         os.mkdir(battlescribe_folder)
 
+    _find_empty_stratagems()
+
 
 def parse_battlescribe(battlescribe_file_name, request_options):
     global _full_stratagems_list
@@ -42,10 +46,11 @@ def parse_battlescribe(battlescribe_file_name, request_options):
     _read_ros_file(battlescribe_file_name)
     wh_faction = _find_faction()
     wh_units = _find_units(wh_faction)
+    wh_empty_stratagems = _filter_empty_stratagems(wh_faction)
     wh_stratagems = _find_stratagems(wh_units)
 
-    result_phase = _prepare_stratagems_phase(wh_stratagems, wh_units, wh_faction, request_options)
-    result_units = _prepare_stratagems_units(wh_stratagems, wh_units, wh_faction, request_options)
+    result_phase = _prepare_stratagems_phase(wh_stratagems + wh_empty_stratagems, wh_units, wh_faction, request_options)
+    result_units = _prepare_stratagems_units(wh_stratagems + wh_empty_stratagems, wh_units, wh_faction, request_options)
 
     _delete_old_files()
 
@@ -130,6 +135,34 @@ def _find_units(faction_id):
     return result_units
 
 
+def _find_empty_stratagems():
+    global _empty_stratagems_list
+    empty_stratagems_full_list = []
+    for stratagem in _stratagems_dict:
+        stratagem_found = False
+        stratagem_id = stratagem["id"]
+        for datasheet_stratagem in _datasheets_stratagems_dict:
+            if stratagem_id == datasheet_stratagem["stratagem_id"]:
+                stratagem_found = True
+                break
+
+        if not stratagem_found:
+            empty_stratagems_full_list.append(stratagem)
+
+    _empty_stratagems_list = empty_stratagems_full_list
+
+
+def _filter_empty_stratagems(faction_id):
+    global _empty_stratagems_list
+    result_list = []
+    for empty_stratagem in _empty_stratagems_list:
+        if faction_id["id"] == empty_stratagem["subfaction_id"] and faction_id["id"] != "" \
+                or faction_id["parent_id"] == empty_stratagem["faction_id"] and faction_id["parent_id"] != "":
+            result_list.append({"datasheet_id": "", "stratagem_id": empty_stratagem["id"]})
+
+    return result_list
+
+
 def _find_stratagems(units_id):
     result_stratagems = []
     for unit_id in units_id:
@@ -194,28 +227,30 @@ def _prepare_stratagems_units(stratagems_id, units_id, faction_id, show_option=N
 
     return results_stratagems_units
 
-def _get_stratagem_from_id(stratagem_id, strategems_list=None, units_list=None, show_option=None):
+
+def _get_stratagem_from_id(stratagem_id, stratagems_list=None, units_list=None, show_option=None):
     for stratagem in _stratagems_dict:
         if stratagem["id"] == stratagem_id:
             if show_option is not None:
                 if "show_units" in show_option and show_option["show_units"] == "on" and units_list is not None:
-                    result_strategem = dict(stratagem)
-                    for strategem_elem in strategems_list:
-                        if strategem_elem["stratagem_id"] == stratagem_id:
+                    result_stratagem = dict(stratagem)
+                    for stratagem_elem in stratagems_list:
+                        if stratagem_elem["stratagem_id"] == stratagem_id:
                             for unit_elem in units_list:
-                                if unit_elem["id"] == strategem_elem["datasheet_id"]:
-                                    result_strategem["name"] += " [" + str(units_list.index(unit_elem) + 1) + "]"
-                    return result_strategem
+                                if unit_elem["id"] == stratagem_elem["datasheet_id"]:
+                                    result_stratagem["name"] += " [" + str(units_list.index(unit_elem) + 1) + "]"
+                    return result_stratagem
                 elif "show_phases" in show_option and show_option["show_phases"] == "on" and units_list is None:
-                    result_strategem = dict(stratagem)
+                    result_stratagem = dict(stratagem)
                     for stratagem_phase in _stratagem_phases_dict:
                         if stratagem_phase["stratagem_id"] == stratagem_id:
-                            result_strategem["name"] += " [" + _get_first_letters(stratagem_phase["phase"]) + "]"
-                    return result_strategem
+                            result_stratagem["name"] += " [" + _get_first_letters(stratagem_phase["phase"]) + "]"
+                    return result_stratagem
 
             return stratagem
 
 
+# --- NON-Stratagem stuff ---
 def _get_first_letters(line):
     words = line.split()
     letters = [word[0] for word in words]
