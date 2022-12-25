@@ -12,19 +12,28 @@ file_list_path = os.path.abspath(os.path.join(wahapedia_path, "_file_list.json")
 
 
 def init_db():
+    check_csv_update = False
     if not os.path.exists(wahapedia_path):
         os.mkdir(wahapedia_path)
         _create_file_list()
     for wahapedia_csv in wahapedia_csv_list:
-        _check_csv(wahapedia_csv)
+        check_result = _check_csv(wahapedia_csv)
+        if check_result is True:
+            check_csv_update = True
+
+    return check_csv_update
 
 
 def _check_csv(csv_name):
+    csv_updated = False
     if not (os.path.exists(os.path.join(wahapedia_path, csv_name)) and _check_file_list(csv_name)):
         print(csv_name + " is bad, redownloading!")
         csv_path = _download_file(wahapedia_url + csv_name, wahapedia_path)
         _register_file_list(csv_name)
         print("Saved to " + csv_path)
+        csv_updated = True
+
+    return csv_updated
 
 
 def _check_file_list(csv_name):

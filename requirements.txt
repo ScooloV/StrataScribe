@@ -2,3 +2,4 @@ xmltodict
 flask
 requests
 json2html
+lxml

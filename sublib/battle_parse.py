@@ -31,20 +31,25 @@ def init_parse():
         os.mkdir(battlescribe_folder)
 
 
-def parse_battlescribe(battlescribe_file_name):
+def parse_battlescribe(battlescribe_file_name, request_options):
     global _full_stratagems_list
+
+    if wahapedia_db.init_db() is True:
+        init_parse()
+
     _full_stratagems_list = []
 
     _read_ros_file(battlescribe_file_name)
     wh_faction = _find_faction()
     wh_units = _find_units(wh_faction)
     wh_stratagems = _find_stratagems(wh_units)
-    result_phase = _prepare_stratagems_phase(wh_stratagems, wh_faction)
-    result_units = _prepare_stratagems_units(wh_stratagems, wh_units, wh_faction)
+
+    result_phase = _prepare_stratagems_phase(wh_stratagems, wh_units, wh_faction, request_options)
+    result_units = _prepare_stratagems_units(wh_stratagems, wh_units, wh_faction, request_options)
 
     _delete_old_files()
 
-    result_phase_sorted = {j: result_phase[j] for j in sorted(result_phase, key=lambda i: wh40k_lists.phases_list.index(i))}
+    result_phase_sorted = {i: result_phase[i] for i in sorted(result_phase, key=lambda j: wh40k_lists.phases_list.index(j))}
 
     return result_phase_sorted, result_units, _get_full_stratagems_list()
 
@@ -135,14 +140,17 @@ def _find_stratagems(units_id):
     return result_stratagems
 
 
-def _prepare_stratagems_phase(stratagems_id, faction_id):
+def _prepare_stratagems_phase(stratagems_id, units_id, faction_id, show_option=None):
     global _full_stratagems_list
     result_stratagems_phase = {}
     for stratagem_id in stratagems_id:
         for stratagem_phase in _stratagem_phases_dict:
             if stratagem_phase["stratagem_id"] == stratagem_id["stratagem_id"]:
-                full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"])
-                if full_stratagem["subfaction_id"] == "" or full_stratagem["subfaction_id"] == full_stratagem["faction_id"] or full_stratagem["subfaction_id"] == faction_id["id"]:
+                full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"], stratagems_id, units_id, show_option)
+                if full_stratagem["subfaction_id"] == "" \
+                        or full_stratagem["subfaction_id"] == full_stratagem["faction_id"] \
+                        or full_stratagem["subfaction_id"] == faction_id["id"]:
+
                     if stratagem_phase["phase"] not in result_stratagems_phase:
                         # result_stratagems_phase[stratagem_phase["phase"]] = [stratagem_id["stratagem_id"]]
                         result_stratagems_phase[stratagem_phase["phase"]] = [full_stratagem["name"]]
@@ -154,34 +162,64 @@ def _prepare_stratagems_phase(stratagems_id, faction_id):
                             result_stratagems_phase[stratagem_phase["phase"]].append(full_stratagem["name"])
                             if full_stratagem["id"] not in _full_stratagems_list:
                                 _full_stratagems_list.append(full_stratagem["id"])
+
     return result_stratagems_phase
 
 
-def _prepare_stratagems_units(stratagems_id, units_id, faction_id):
+def _prepare_stratagems_units(stratagems_id, units_id, faction_id, show_option=None):
     global _full_stratagems_list
     results_stratagems_units = {}
     for unit_id in units_id:
         for stratagem_id in stratagems_id:
             if stratagem_id["datasheet_id"] == unit_id["id"]:
-                full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"])
-                if full_stratagem["subfaction_id"] == "" or full_stratagem["subfaction_id"] == full_stratagem["faction_id"] or full_stratagem["subfaction_id"] == faction_id["id"]:
-                    if unit_id["name"] not in results_stratagems_units:
+                full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"], show_option=show_option)
+                if full_stratagem["subfaction_id"] == "" \
+                        or full_stratagem["subfaction_id"] == full_stratagem["faction_id"] \
+                        or full_stratagem["subfaction_id"] == faction_id["id"]:
+
+                    unit_id_name = unit_id["name"]
+                    if "show_units" in show_option and show_option["show_units"] == "on":
+                        unit_id_name = "[" + str(units_id.index(unit_id) + 1) + "] " + unit_id_name
+
+                    if unit_id_name not in results_stratagems_units:
                         # results_stratagems_units[unit_id["name"]] = [stratagem_id["stratagem_id"]]
-                        results_stratagems_units[unit_id["name"]] = [full_stratagem["name"]]
+                        results_stratagems_units[unit_id_name] = [full_stratagem["name"]]
                         if full_stratagem["id"] not in _full_stratagems_list:
                             _full_stratagems_list.append(full_stratagem["id"])
                     else:
                         # results_stratagems_units[unit_id["name"]].append(stratagem_id["stratagem_id"])
-                        results_stratagems_units[unit_id["name"]].append(full_stratagem["name"])
+                        results_stratagems_units[unit_id_name].append(full_stratagem["name"])
                         if full_stratagem["id"] not in _full_stratagems_list:
                             _full_stratagems_list.append(full_stratagem["id"])
+
     return results_stratagems_units
 
-
-def _get_stratagem_from_id(stratagem_id):
+def _get_stratagem_from_id(stratagem_id, strategems_list=None, units_list=None, show_option=None):
     for stratagem in _stratagems_dict:
         if stratagem["id"] == stratagem_id:
+            if show_option is not None:
+                if "show_units" in show_option and show_option["show_units"] == "on" and units_list is not None:
+                    result_strategem = dict(stratagem)
+                    for strategem_elem in strategems_list:
+                        if strategem_elem["stratagem_id"] == stratagem_id:
+                            for unit_elem in units_list:
+                                if unit_elem["id"] == strategem_elem["datasheet_id"]:
+                                    result_strategem["name"] += " [" + str(units_list.index(unit_elem) + 1) + "]"
+                    return result_strategem
+                elif "show_phases" in show_option and show_option["show_phases"] == "on" and units_list is None:
+                    result_strategem = dict(stratagem)
+                    for stratagem_phase in _stratagem_phases_dict:
+                        if stratagem_phase["stratagem_id"] == stratagem_id:
+                            result_strategem["name"] += " [" + _get_first_letters(stratagem_phase["phase"]) + "]"
+                    return result_strategem
+
             return stratagem
+
+
+def _get_first_letters(line):
+    words = line.split()
+    letters = [word[0] for word in words]
+    return "".join(letters)
 
 
 def _clean_html(html_string):

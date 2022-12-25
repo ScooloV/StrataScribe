@@ -1,9 +1,15 @@
 <html>
-   <body>
-      <form action = "/" method = "POST"
-         enctype = "multipart/form-data">
-         <input type = "file" name = "file" />
-         <input type = "submit"/>
-      </form>
-   </body>
+<body>
+<form action="/" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".ros, .rosz"/>
+    <input type="submit"/>
+
+    <div>
+    <input type="checkbox" id="show_units" name="show_units">
+    <label for="show_units">Show Units ID in Phase Table </label>
+    <input type="checkbox" id="show_phases" name="show_phases">
+    <label for="show_phases">Show Phases in Units Table </label>
+    </div>
+</form>
+</body>
 </html>
