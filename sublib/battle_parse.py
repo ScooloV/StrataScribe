@@ -44,6 +44,7 @@ def parse_battlescribe(battlescribe_file_name, request_options):
 
     _full_stratagems_list = []
     wh_empty_stratagems = []
+    wh_core_stratagems = []
 
     _read_ros_file(battlescribe_file_name)
     wh_faction = _find_faction()
@@ -52,10 +53,13 @@ def parse_battlescribe(battlescribe_file_name, request_options):
     if "show_empty" in request_options and request_options["show_empty"] == "on":
         wh_empty_stratagems = _filter_empty_stratagems(wh_faction)
 
+    if "show_core" in request_options and request_options["show_core"] == "on":
+        wh_core_stratagems = _filter_core_stratagems()
+
     wh_stratagems = _find_stratagems(wh_units)
 
-    result_phase = _prepare_stratagems_phase(wh_stratagems + wh_empty_stratagems, wh_units, wh_faction, request_options)
-    result_units = _prepare_stratagems_units(wh_stratagems + wh_empty_stratagems, wh_units, wh_faction, request_options)
+    result_phase = _prepare_stratagems_phase(wh_stratagems + wh_empty_stratagems + wh_core_stratagems, wh_units, wh_faction, request_options)
+    result_units = _prepare_stratagems_units(wh_stratagems + wh_empty_stratagems + wh_core_stratagems, wh_units, wh_faction, request_options)
 
     _delete_old_files()
 
@@ -166,12 +170,20 @@ def _filter_empty_stratagems(faction_id):
     result_list = []
     for empty_stratagem in _empty_stratagems_list:
         if faction_id["id"] == empty_stratagem["subfaction_id"] and faction_id["id"] != "" \
-                or faction_id["parent_id"] == empty_stratagem["faction_id"] and faction_id["parent_id"] != "" \
-                or empty_stratagem["type"] == "Core Stratagem":
+                or faction_id["parent_id"] == empty_stratagem["faction_id"] and faction_id["parent_id"] != "":
             result_list.append({"datasheet_id": "", "stratagem_id": empty_stratagem["id"]})
 
     return result_list
 
+
+def _filter_core_stratagems():
+    global _empty_stratagems_list
+    result_list = []
+    for empty_stratagem in _empty_stratagems_list:
+        if empty_stratagem["type"] == "Core Stratagem":
+            result_list.append({"datasheet_id": "", "stratagem_id": empty_stratagem["id"]})
+
+    return result_list
 
 def _find_stratagems(units_id):
     result_stratagems = []
