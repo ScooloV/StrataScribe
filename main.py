@@ -23,7 +23,7 @@ def upload_file():
             json_phase, json_units, json_stratagems = battle_parse.parse_battlescribe(random_filename, request.form)
             html_phase = prepare_html.convert_to_table(json_phase)
             html_units = prepare_html.convert_to_table(json_units)
-            html_stratagems = prepare_html.convert_to_table(json_stratagems)
+            html_stratagems = prepare_html.convert_to_stratagem_list(json_stratagems)
         return render_template("report.html", html_phase=html_phase, html_units=html_units, html_stratagems=html_stratagems)
 
     if request.method == 'GET':

@@ -262,6 +262,7 @@ def _get_first_letters(line):
 
 
 def _clean_html(html_string):
+    #return html_string
     return str(html.fromstring(html_string).text_content())
 
 
