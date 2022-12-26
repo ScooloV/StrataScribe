@@ -13,6 +13,7 @@ upload_directory = os.path.abspath("./battlescribe")
 wahapedia_db.init_db()
 battle_parse.init_parse()
 
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -30,4 +31,3 @@ def upload_file():
 
     if request.method == 'GET':
         return render_template("upload.html")
-
