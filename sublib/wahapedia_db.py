@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import requests
 
 wahapedia_url = "https://wahapedia.ru/wh40k9ed/"
-wahapedia_csv_list = ["Datasheets.csv", "Datasheets_stratagems.csv", "Factions.csv", "StratagemPhases.csv", "Stratagems.csv"]
+wahapedia_csv_list = ["Datasheets.csv", "Datasheets_stratagems.csv", "Factions.csv", "StratagemPhases.csv", "Stratagems.csv", "Last_update.csv"]
 wahapedia_path = os.path.abspath("./wahapedia")
 file_list_path = os.path.abspath(os.path.join(wahapedia_path, "_file_list.json"))
 
@@ -17,12 +17,31 @@ def init_db():
     if not os.path.exists(wahapedia_path):
         os.mkdir(wahapedia_path)
         _create_file_list()
-    for wahapedia_csv in wahapedia_csv_list:
-        check_result = _check_csv(wahapedia_csv)
-        if check_result is True:
-            check_csv_update = True
+
+    if _wahapedia_has_update():
+        for wahapedia_csv in wahapedia_csv_list:
+            check_result = _check_csv(wahapedia_csv)
+            if check_result is True:
+                check_csv_update = True
 
     return check_csv_update
+
+
+def _wahapedia_has_update():
+    last_update_path = os.path.join(wahapedia_path, "Last_update.csv")
+
+    if not os.path.exists(last_update_path):
+        print("Last_update.csv doesn't exists")
+        return True
+
+    last_update_dict_old = get_dict_from_csv(last_update_path)
+    _check_csv("Last_update.csv")
+    last_update_dict_new = get_dict_from_csv(last_update_path)
+
+    if (last_update_dict_old[0]["last_update"]) != (last_update_dict_new[0]["last_update"]):
+        print("Wahapedia has new updates")
+        return True
+    return False
 
 
 def _check_csv(csv_name):
@@ -75,17 +94,20 @@ def _download_file(file_url, folder_name):
     file_name = file_url.split("/")[-1]
     save_path = os.path.abspath(os.path.join(folder_name, file_name))
 
-    file_size = 0
-    while file_size < 2048:
+    file_downloaded = False
+
+    while not file_downloaded:
         get_response = requests.get(file_url, stream=True)
         with open(save_path, 'wb') as f:
             for chunk in get_response.iter_content(chunk_size=1024):
                 if chunk:  # filter out keep-alive new chunks
                     f.write(chunk)
         file_size = os.stat(save_path).st_size
-        if file_size < 2048:
+        if file_size < 2048 and file_name != "Last_update.csv":
             print("Anti Spam is working. Waiting for 5 second to try again.")
             time.sleep(5)
+        else:
+            file_downloaded = True
 
     return save_path
 
