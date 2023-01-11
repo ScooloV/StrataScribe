@@ -23,19 +23,22 @@ _full_stratagems_list = []
 
 def init_parse():
     global _datasheets_dict, _datasheets_stratagems_dict, _factions_dict, _stratagem_phases_dict, _stratagems_dict
+    # reading all csv file to dictionary format
     _datasheets_dict = wahapedia_db.get_dict_from_csv("Datasheets.csv")
     _datasheets_stratagems_dict = wahapedia_db.get_dict_from_csv("Datasheets_stratagems.csv")
     _factions_dict = wahapedia_db.get_dict_from_csv("Factions.csv")
     _stratagem_phases_dict = wahapedia_db.get_dict_from_csv("StratagemPhases.csv")
     _stratagems_dict = wahapedia_db.get_dict_from_csv("Stratagems.csv")
 
+    # folder for battlescribe files should exist
     if not os.path.exists(battlescribe_folder):
         os.mkdir(battlescribe_folder)
 
+    # filtering all stratagems which doesn't have any unit requirements
     _find_empty_stratagems()
-    pass
 
 
+# request_options are coming from Web UI and has several options
 def parse_battlescribe(battlescribe_file_name, request_options):
     global _full_stratagems_list
 
@@ -121,14 +124,20 @@ def _find_faction():
             if faction["is_subfaction"] == "true":
                 is_subfaction = True
 
+    subfaction_names = []
     if not is_subfaction:
         for selection in _ros_dict["roster"]["forces"]["force"]["selections"]["selection"]:
             if selection["@name"] in wh40k_lists.subfaction_types:
-                subfaction_name = selection["selections"]["selection"]["@name"]
+                if type(selection["selections"]["selection"]) == list:
+                    for element in selection["selections"]["selection"]:
+                        subfaction_names.append(element["@name"])
+                else:
+                    subfaction_names.append(selection["selections"]["selection"]["@name"])
                 for faction in _factions_dict:
-                    if faction["name"] in subfaction_name or subfaction_name in faction["name"]:
-                        result_faction = faction
-                        break
+                    for subfaction_name in subfaction_names:
+                        if faction["name"] in subfaction_name or subfaction_name in faction["name"]:
+                            result_faction = faction
+                            break
 
     return result_faction
 
@@ -277,6 +286,11 @@ def _get_stratagem_from_id(stratagem_id, stratagems_list=None, units_list=None, 
 def _stratagem_is_valid(stratagem_id):
     full_stratagem = _get_stratagem_from_id(stratagem_id)
     stratagem_type = full_stratagem["type"]
+
+    for invalid_stratagem_type in wh40k_lists.invalid_stratagems_type:
+        if invalid_stratagem_type in stratagem_type:
+            return False
+
     if stratagem_type != "Stratagem":
         for valid_stratagem_type in wh40k_lists.valid_stratagems_type:
             if valid_stratagem_type in stratagem_type:

@@ -10,3 +10,4 @@ phases_list = ["Any time", "Before battle", "During deployment", "At the start o
                "Enemy Fight phase", "Morale phase", "Enemy Morale phase", "Taking casualties", "Enemy taking casualties", "End of your turn"]
 
 valid_stratagems_type = ["Battle Tactic Stratagem", "Strategic Ploy Stratagem", "Epic Deed Stratagem", "Requisition Stratagem", "Wargear Stratagem", "Core Stratagem"]
+invalid_stratagems_type = ["(Supplement)", "Crusher Stampede", "Crusade"]
