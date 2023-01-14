@@ -16,6 +16,8 @@ _datasheets_stratagems_dict = {}
 _factions_dict = {}
 _stratagem_phases_dict = {}
 _stratagems_dict = {}
+
+_roster_list = []
 _empty_stratagems_list = []
 
 _full_stratagems_list = []
@@ -50,6 +52,8 @@ def parse_battlescribe(battlescribe_file_name, request_options):
     wh_core_stratagems = []
 
     _read_ros_file(battlescribe_file_name)
+    _prepare_roster_list()
+
     wh_faction = _find_faction()
     wh_units = _find_units(wh_faction)
 
@@ -61,12 +65,24 @@ def parse_battlescribe(battlescribe_file_name, request_options):
 
     wh_stratagems = _find_stratagems(wh_units)
 
-    result_phase = _prepare_stratagems_phase(wh_stratagems + wh_empty_stratagems + wh_core_stratagems, wh_units, wh_faction, request_options)
-    result_units = _prepare_stratagems_units(wh_stratagems + wh_empty_stratagems + wh_core_stratagems, wh_units, wh_faction, request_options)
+    result_phase = []
+    result_units = []
+    for id in range(0, len(wh_faction)):
+        current_empty_stratagems = []
+        if len(wh_empty_stratagems) != 0:
+            current_empty_stratagems = wh_empty_stratagems[id]
+
+        current_id_phase = _prepare_stratagems_phase(wh_stratagems[id] + current_empty_stratagems + wh_core_stratagems, wh_units[id], wh_faction[id], request_options)
+        currend_id_units = _prepare_stratagems_units(wh_stratagems[id] + current_empty_stratagems + wh_core_stratagems, wh_units[id], wh_faction[id], request_options)
+        result_phase.append(current_id_phase)
+        result_units.append(currend_id_units)
 
     _delete_old_files()
 
-    result_phase_sorted = {i: result_phase[i] for i in sorted(result_phase, key=lambda j: wh40k_lists.phases_list.index(j))}
+    result_phase_sorted = []
+    for phase_elem in result_phase:
+        phase_elem_sorted = {i: phase_elem[i] for i in sorted(phase_elem, key=lambda j: wh40k_lists.phases_list.index(j))}
+        result_phase_sorted.append(phase_elem_sorted)
 
     return result_phase_sorted, result_units, _get_full_stratagems_list()
 
@@ -112,48 +128,67 @@ def _read_ros_file(file_name):
     _ros_dict = _get_dict_from_xml(ros_file_name)
 
 
+# if roster has several forces, that it is multidetachment army and _roster_list has more elements
+def _prepare_roster_list():
+    global _ros_dict, _roster_list
+    _roster_list = []
+    if isinstance(_ros_dict['roster']['forces']['force'], list):
+        for roster_force in _ros_dict["roster"]["forces"]["force"]:
+            _roster_list.append(roster_force)
+    else:
+        _roster_list.append(_ros_dict["roster"]["forces"]["force"])
+
+
 def _find_faction():
     result_faction = []
     is_subfaction = False
-    catalogueName = _ros_dict["roster"]["forces"]["force"]["@catalogueName"]
-    catalogueName_list = catalogueName.split(" - ")
 
-    for faction in _factions_dict:
-        if faction["name"] in catalogueName_list[-1] or catalogueName_list[-1] in faction["name"]:
-            result_faction = faction
-            if faction["is_subfaction"] == "true":
-                is_subfaction = True
+    for roster_elem in _roster_list:
+        catalogueName = roster_elem["@catalogueName"]
+        catalogueName_list = catalogueName.split(" - ")
 
-    subfaction_names = []
-    if not is_subfaction:
-        for selection in _ros_dict["roster"]["forces"]["force"]["selections"]["selection"]:
-            if selection["@name"] in wh40k_lists.subfaction_types:
-                if type(selection["selections"]["selection"]) == list:
-                    for element in selection["selections"]["selection"]:
-                        subfaction_names.append(element["@name"])
-                else:
-                    subfaction_names.append(selection["selections"]["selection"]["@name"])
-                for faction in _factions_dict:
-                    for subfaction_name in subfaction_names:
-                        if faction["name"] in subfaction_name or subfaction_name in faction["name"]:
-                            result_faction = faction
-                            break
+        for faction in _factions_dict:
+            if faction["name"] in catalogueName_list[-1] or catalogueName_list[-1] in faction["name"]:
+                force_faction = faction
+                if faction["is_subfaction"] == "true":
+                    is_subfaction = True
 
+        subfaction_names = []
+        if not is_subfaction:
+            for selection in roster_elem["selections"]["selection"]:
+                if selection["@name"] in wh40k_lists.subfaction_types:
+                    if type(selection["selections"]["selection"]) == list:
+                        for element in selection["selections"]["selection"]:
+                            subfaction_names.append(element["@name"])
+                    else:
+                        subfaction_names.append(selection["selections"]["selection"]["@name"])
+                    for faction in _factions_dict:
+                        for subfaction_name in subfaction_names:
+                            if faction["name"] in subfaction_name or subfaction_name in faction["name"]:
+                                force_faction = faction
+                                break
+
+        result_faction.append(force_faction)
     return result_faction
 
 
-def _find_units(faction_id):
-    result_units = []
+def _find_units(faction_ids):
+    total_units = []
 
-    for unit in _ros_dict["roster"]["forces"]["force"]["selections"]["selection"]:
-        if unit["@name"] not in wh40k_lists.selection_non_unit_types:
-            for datasheet in _datasheets_dict:
-                if faction_id["id"] == datasheet["faction_id"] or faction_id["parent_id"] == datasheet["faction_id"]:
-                    if datasheet["name"] == unit["@name"]:
-                        if datasheet not in result_units:
-                            result_units.append(datasheet)
+    for id in range(0, len(faction_ids)):
+        result_units = []
+        faction_id = faction_ids[id]
+        roster_force = _roster_list[id]
+        for unit in roster_force["selections"]["selection"]:
+            if unit["@name"] not in wh40k_lists.selection_non_unit_types:
+                for datasheet in _datasheets_dict:
+                    if faction_id["id"] == datasheet["faction_id"] or faction_id["parent_id"] == datasheet["faction_id"]:
+                        if datasheet["name"] == unit["@name"]:
+                            if datasheet not in result_units:
+                                result_units.append(datasheet)
+        total_units.append(result_units)
 
-    return result_units
+    return total_units
 
 
 def _find_empty_stratagems():
@@ -174,15 +209,18 @@ def _find_empty_stratagems():
     _empty_stratagems_list = empty_stratagems_full_list
 
 
-def _filter_empty_stratagems(faction_id):
+def _filter_empty_stratagems(faction_ids):
     global _empty_stratagems_list
-    result_list = []
-    for empty_stratagem in _empty_stratagems_list:
-        if faction_id["id"] == empty_stratagem["subfaction_id"] and faction_id["id"] != "" \
-                or faction_id["parent_id"] == empty_stratagem["faction_id"] and faction_id["parent_id"] != "":
-            result_list.append({"datasheet_id": "", "stratagem_id": empty_stratagem["id"]})
+    stratagems_list = []
+    for faction_id in faction_ids:
+        result_list = []
+        for empty_stratagem in _empty_stratagems_list:
+            if faction_id["id"] == empty_stratagem["subfaction_id"] and faction_id["id"] != "" \
+                    or faction_id["parent_id"] == empty_stratagem["faction_id"] and faction_id["parent_id"] != "":
+                result_list.append({"datasheet_id": "", "stratagem_id": empty_stratagem["id"]})
+        stratagems_list.append(result_list)
 
-    return result_list
+    return stratagems_list
 
 
 def _filter_core_stratagems():
@@ -194,14 +232,18 @@ def _filter_core_stratagems():
 
     return result_list
 
-def _find_stratagems(units_id):
-    result_stratagems = []
-    for unit_id in units_id:
-        for datasheets_stratagem in _datasheets_stratagems_dict:
-            if datasheets_stratagem["datasheet_id"] == unit_id["id"]:
-                result_stratagems.append(datasheets_stratagem)
 
-    return result_stratagems
+def _find_stratagems(units_ids):
+    stratagems_list = []
+    for units_id in units_ids:
+        result_stratagems = []
+        for unit_id in units_id:
+            for datasheets_stratagem in _datasheets_stratagems_dict:
+                if datasheets_stratagem["datasheet_id"] == unit_id["id"]:
+                    result_stratagems.append(datasheets_stratagem)
+        stratagems_list.append(result_stratagems)
+
+    return stratagems_list
 
 
 def _prepare_stratagems_phase(stratagems_id, units_id, faction_id, show_option=None):
