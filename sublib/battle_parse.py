@@ -8,8 +8,10 @@ from lxml import html
 
 from sublib import wahapedia_db, wh40k_lists
 
+# Absolute path of the battlescribe folder
 battlescribe_folder = os.path.abspath("./battlescribe")
 
+# Global dictionaries to store the data read from csv files
 _ros_dict = {}
 _datasheets_dict = {}
 _datasheets_stratagems_dict = {}
@@ -17,13 +19,16 @@ _factions_dict = {}
 _stratagem_phases_dict = {}
 _stratagems_dict = {}
 
+# Global lists to store the data extracted from the battlescribe file
 _roster_list = []
 _empty_stratagems_list = []
-
 _full_stratagems_list = []
 
 
 def init_parse():
+    """
+    Initialize the parse by reading all csv files to dictionary format and creating the battlescribe folder if it does not exist
+    """
     global _datasheets_dict, _datasheets_stratagems_dict, _factions_dict, _stratagem_phases_dict, _stratagems_dict
     # reading all csv file to dictionary format
     _datasheets_dict = wahapedia_db.get_dict_from_csv("Datasheets.csv")
@@ -42,6 +47,9 @@ def init_parse():
 
 # request_options are coming from Web UI and has several options
 def parse_battlescribe(battlescribe_file_name, request_options):
+    """
+    Parse the battlescribe file and returns the result in the form of a list of dictionaries and a list of lists
+    """
     global _full_stratagems_list
 
     if wahapedia_db.init_db() is True:
