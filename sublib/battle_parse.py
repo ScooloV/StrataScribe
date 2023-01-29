@@ -65,16 +65,20 @@ def parse_battlescribe(battlescribe_file_name, request_options):
     wh_faction = _find_faction()
     wh_units = _find_units(wh_faction)
 
-    if "show_empty" in request_options and request_options["show_empty"] == "on":
+    if request_options.get("show_empty") == "on":
         wh_empty_stratagems = _filter_empty_stratagems(wh_faction)
 
-    if "show_core" in request_options and request_options["show_core"] == "on":
+    if request_options.get("show_core") == "on":
         wh_core_stratagems = _filter_core_stratagems()
+
+    if request_options.get("dont_show_before") == "on":
+        wh40k_lists.ignore_phases_list.append("Before battle")
 
     wh_stratagems = _find_stratagems(wh_units)
 
     result_phase = []
     result_units = []
+
     for id in range(0, len(wh_faction)):
         current_empty_stratagems = []
         if len(wh_empty_stratagems) != 0:
@@ -341,12 +345,20 @@ def _stratagem_is_valid(stratagem_id):
         if invalid_stratagem_type in stratagem_type:
             return False
 
+    if _get_stratagem_phase(stratagem_id) in wh40k_lists.ignore_phases_list:
+        return False
+
     if stratagem_type != "Stratagem":
         for valid_stratagem_type in wh40k_lists.valid_stratagems_type:
             if valid_stratagem_type in stratagem_type:
                 return True
 
     return False
+
+def _get_stratagem_phase(stratagem_id):
+    for stratagem_phase in _stratagem_phases_dict:
+        if stratagem_phase["stratagem_id"] == stratagem_id:
+            return stratagem_phase["phase"]
 
 
 # --- NON-Stratagem stuff ---
