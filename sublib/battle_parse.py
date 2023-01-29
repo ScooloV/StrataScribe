@@ -153,7 +153,7 @@ def _find_faction():
 
     for roster_elem in _roster_list:
         catalogueName = roster_elem["@catalogueName"]
-        catalogueName_list = catalogueName.split(" - ")
+        catalogueName_list = remove_symbol(catalogueName.split(" - "), "'")
 
         for faction in _factions_dict:
             if faction["name"] in catalogueName_list[-1] or catalogueName_list[-1] in faction["name"]:
@@ -167,9 +167,9 @@ def _find_faction():
                 if selection["@name"] in wh40k_lists.subfaction_types:
                     if type(selection["selections"]["selection"]) == list:
                         for element in selection["selections"]["selection"]:
-                            subfaction_names.append(element["@name"])
+                            subfaction_names.append(element["@name"].replace("'", ""))
                     else:
-                        subfaction_names.append(selection["selections"]["selection"]["@name"])
+                        subfaction_names.append(selection["selections"]["selection"]["@name"].replace("'", ""))
                     for faction in _factions_dict:
                         for subfaction_name in subfaction_names:
                             if faction["name"] in subfaction_name or subfaction_name in faction["name"]:
@@ -380,3 +380,7 @@ def _get_dict_from_xml(xml_file_name):
     with open(xml_file_path) as xml_file:
         data_dict = xmltodict.parse(xml_file.read())
         return data_dict
+
+
+def remove_symbol(arr, symbol):
+    return [word.replace(symbol, '') for word in arr]
