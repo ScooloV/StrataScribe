@@ -1,6 +1,7 @@
-subfaction_types = ["Order", "Forge World", "Brotherhood", "Noble Household", "Chapter",
-                    "Allegiance", "Dread Household", "Legion", "Plague Company",
-                    "Great Cult", "Craftworld", "Kabal", "Wych Cult", "Haemonculus Coven", "Cult", "League", "Dynasty", "Clan", "Sept", "Hive Fleet"]
+subfaction_types = ["Order Convictions", "Forge World Choice", "Brotherhood", "Noble Household", "Chapter",
+                    "Chaos Allegiance", "Dread Household", "Legion", "Plague Company",
+                    "Cult of the Legion", "Craftworld Selection", "Kabal", "Wych Cult",
+                    "Haemonculus Coven", "Cult Creed", "League", "Dynasty Choice", "Clan Kultur", "Sept Choice", "Hive Fleet"]
 
 selection_non_unit_types = ["**Chapter Selector**", "Game Type", "Detachment Command Cost"]
 
