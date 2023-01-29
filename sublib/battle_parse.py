@@ -195,7 +195,7 @@ def _find_units(faction_ids):
             if unit["@name"] not in wh40k_lists.selection_non_unit_types:
                 for datasheet in _datasheets_dict:
                     if faction_id["id"] == datasheet["faction_id"] or faction_id["parent_id"] == datasheet["faction_id"]:
-                        if datasheet["name"] == unit["@name"]:
+                        if _compare_unit_names(datasheet["name"], unit["@name"]):
                             if datasheet not in result_units:
                                 result_units.append(datasheet)
         total_units.append(result_units)
@@ -355,6 +355,7 @@ def _stratagem_is_valid(stratagem_id):
 
     return False
 
+
 def _get_stratagem_phase(stratagem_id):
     for stratagem_phase in _stratagem_phases_dict:
         if stratagem_phase["stratagem_id"] == stratagem_id:
@@ -367,6 +368,18 @@ def _get_faction_name(catalogue_name):
         return catalogue_array[0]
 
     return catalogue_array[-1]
+
+
+# compares battlescribe and wahapedia names according to rename dictionary
+def _compare_unit_names(wahapedia_name, battlescribe_name):
+    if battlescribe_name in wh40k_lists.unit_rename_dict:
+        if wh40k_lists.unit_rename_dict[battlescribe_name] == wahapedia_name:
+            return True
+
+    if wahapedia_name == battlescribe_name:
+        return True
+
+    return False
 
 
 # --- NON-Stratagem stuff ---
