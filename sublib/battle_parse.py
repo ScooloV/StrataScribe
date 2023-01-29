@@ -157,10 +157,10 @@ def _find_faction():
 
     for roster_elem in _roster_list:
         catalogueName = roster_elem["@catalogueName"]
-        catalogueName_list = remove_symbol(catalogueName.split(" - "), "'")
+        catalogueName_clean = _get_faction_name(catalogueName)
 
         for faction in _factions_dict:
-            if faction["name"] in catalogueName_list[-1] or catalogueName_list[-1] in faction["name"]:
+            if faction["name"] in catalogueName_clean or catalogueName_clean in faction["name"]:
                 force_faction = faction
                 if faction["is_subfaction"] == "true":
                     is_subfaction = True
@@ -361,6 +361,14 @@ def _get_stratagem_phase(stratagem_id):
             return stratagem_phase["phase"]
 
 
+def _get_faction_name(catalogue_name):
+    catalogue_array = _remove_symbol(catalogue_name.split(" - "), "'")
+    if catalogue_array[-1] == "Craftworlds":
+        return catalogue_array[0]
+
+    return catalogue_array[-1]
+
+
 # --- NON-Stratagem stuff ---
 def _get_first_letters(line):
     words = line.split()
@@ -394,5 +402,5 @@ def _get_dict_from_xml(xml_file_name):
         return data_dict
 
 
-def remove_symbol(arr, symbol):
+def _remove_symbol(arr, symbol):
     return [word.replace(symbol, '') for word in arr]
