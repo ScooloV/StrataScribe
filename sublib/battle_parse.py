@@ -8,8 +8,10 @@ from lxml import html
 
 from sublib import wahapedia_db, wh40k_lists
 
+# Absolute path of the battlescribe folder
 battlescribe_folder = os.path.abspath("./battlescribe")
 
+# Global dictionaries to store the data read from csv files
 _ros_dict = {}
 _datasheets_dict = {}
 _datasheets_stratagems_dict = {}
@@ -17,13 +19,16 @@ _factions_dict = {}
 _stratagem_phases_dict = {}
 _stratagems_dict = {}
 
+# Global lists to store the data extracted from the battlescribe file
 _roster_list = []
 _empty_stratagems_list = []
-
 _full_stratagems_list = []
 
 
 def init_parse():
+    """
+    Initialize the parse by reading all csv files to dictionary format and creating the battlescribe folder if it does not exist
+    """
     global _datasheets_dict, _datasheets_stratagems_dict, _factions_dict, _stratagem_phases_dict, _stratagems_dict
     # reading all csv file to dictionary format
     _datasheets_dict = wahapedia_db.get_dict_from_csv("Datasheets.csv")
@@ -42,6 +47,9 @@ def init_parse():
 
 # request_options are coming from Web UI and has several options
 def parse_battlescribe(battlescribe_file_name, request_options):
+    """
+    Parse the battlescribe file and returns the result in the form of a list of dictionaries and a list of lists
+    """
     global _full_stratagems_list
 
     if wahapedia_db.init_db() is True:
@@ -57,16 +65,20 @@ def parse_battlescribe(battlescribe_file_name, request_options):
     wh_faction = _find_faction()
     wh_units = _find_units(wh_faction)
 
-    if "show_empty" in request_options and request_options["show_empty"] == "on":
+    if request_options.get("show_empty") == "on":
         wh_empty_stratagems = _filter_empty_stratagems(wh_faction)
 
-    if "show_core" in request_options and request_options["show_core"] == "on":
+    if request_options.get("show_core") == "on":
         wh_core_stratagems = _filter_core_stratagems()
+
+    if request_options.get("dont_show_before") == "on":
+        wh40k_lists.ignore_phases_list.append("Before battle")
 
     wh_stratagems = _find_stratagems(wh_units)
 
     result_phase = []
     result_units = []
+
     for id in range(0, len(wh_faction)):
         current_empty_stratagems = []
         if len(wh_empty_stratagems) != 0:
@@ -145,10 +157,10 @@ def _find_faction():
 
     for roster_elem in _roster_list:
         catalogueName = roster_elem["@catalogueName"]
-        catalogueName_list = catalogueName.split(" - ")
+        catalogueName_clean = _get_faction_name(catalogueName)
 
         for faction in _factions_dict:
-            if faction["name"] in catalogueName_list[-1] or catalogueName_list[-1] in faction["name"]:
+            if faction["name"] in catalogueName_clean or catalogueName_clean in faction["name"]:
                 force_faction = faction
                 if faction["is_subfaction"] == "true":
                     is_subfaction = True
@@ -159,9 +171,9 @@ def _find_faction():
                 if selection["@name"] in wh40k_lists.subfaction_types:
                     if type(selection["selections"]["selection"]) == list:
                         for element in selection["selections"]["selection"]:
-                            subfaction_names.append(element["@name"])
+                            subfaction_names.append(element["@name"].replace("'", ""))
                     else:
-                        subfaction_names.append(selection["selections"]["selection"]["@name"])
+                        subfaction_names.append(selection["selections"]["selection"]["@name"].replace("'", ""))
                     for faction in _factions_dict:
                         for subfaction_name in subfaction_names:
                             if faction["name"] in subfaction_name or subfaction_name in faction["name"]:
@@ -183,7 +195,7 @@ def _find_units(faction_ids):
             if unit["@name"] not in wh40k_lists.selection_non_unit_types:
                 for datasheet in _datasheets_dict:
                     if faction_id["id"] == datasheet["faction_id"] or faction_id["parent_id"] == datasheet["faction_id"]:
-                        if datasheet["name"] == unit["@name"]:
+                        if _compare_unit_names(datasheet["name"], unit["@name"]):
                             if datasheet not in result_units:
                                 result_units.append(datasheet)
         total_units.append(result_units)
@@ -333,10 +345,39 @@ def _stratagem_is_valid(stratagem_id):
         if invalid_stratagem_type in stratagem_type:
             return False
 
+    if _get_stratagem_phase(stratagem_id) in wh40k_lists.ignore_phases_list:
+        return False
+
     if stratagem_type != "Stratagem":
         for valid_stratagem_type in wh40k_lists.valid_stratagems_type:
             if valid_stratagem_type in stratagem_type:
                 return True
+
+    return False
+
+
+def _get_stratagem_phase(stratagem_id):
+    for stratagem_phase in _stratagem_phases_dict:
+        if stratagem_phase["stratagem_id"] == stratagem_id:
+            return stratagem_phase["phase"]
+
+
+def _get_faction_name(catalogue_name):
+    catalogue_array = _remove_symbol(catalogue_name.split(" - "), "'")
+    if catalogue_array[-1] == "Craftworlds":
+        return catalogue_array[0]
+
+    return catalogue_array[-1]
+
+
+# compares battlescribe and wahapedia names according to rename dictionary
+def _compare_unit_names(wahapedia_name, battlescribe_name):
+    if battlescribe_name in wh40k_lists.unit_rename_dict:
+        if wh40k_lists.unit_rename_dict[battlescribe_name] == wahapedia_name:
+            return True
+
+    if wahapedia_name == battlescribe_name:
+        return True
 
     return False
 
@@ -372,3 +413,7 @@ def _get_dict_from_xml(xml_file_name):
     with open(xml_file_path) as xml_file:
         data_dict = xmltodict.parse(xml_file.read())
         return data_dict
+
+
+def _remove_symbol(arr, symbol):
+    return [word.replace(symbol, '') for word in arr]
