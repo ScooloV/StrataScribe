@@ -159,7 +159,6 @@ def _download_file(file_url, folder_name):
     return save_path
 
 
-
 def get_dict_from_csv(csv_path):
     """
     Converts a CSV file to a list of dictionaries

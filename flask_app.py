@@ -16,6 +16,13 @@ battle_parse.init_parse()
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
+    # adding file filter for mobile requests
+    accept = 'accept = ".ros, .rosz"'
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = 'mobile' in user_agent or 'android' in user_agent
+    if is_mobile:
+        accept = ""
+
     if request.method == 'POST':
         f = request.files['file']
         file_ext = pathlib.Path(f.filename).suffix
@@ -29,10 +36,10 @@ def upload_file():
             html_stratagems = prepare_html.convert_to_stratagem_list(json_stratagems)
             return render_template("report.html", html_phase=html_phase, html_units=html_units, html_stratagems=html_stratagems)
         else:
-            return render_template("upload.html")
+            return render_template("upload.html", accept=accept)
 
     if request.method == 'GET':
-        return render_template("upload.html")
+        return render_template("upload.html", accept=accept)
 
 
 @app.route('/about', methods=['GET', 'POST'])
