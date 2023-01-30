@@ -13,7 +13,6 @@ upload_directory = os.path.abspath("./battlescribe")
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
-
     # adding file filter for mobile requests
     accept = 'accept = ".ros, .rosz"'
     user_agent = request.headers.get('User-Agent', '').lower()
