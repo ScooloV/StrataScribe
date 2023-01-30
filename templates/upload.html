@@ -26,7 +26,7 @@
 
 <div class="container">
     <form action="/" enctype="multipart/form-data" method="POST">
-        <input accept=".ros, .rosz" name="file" type="file"/>
+        <input {{accept|safe}} name="file" type="file"/>
         <input type="submit"/>
 
         <div>
