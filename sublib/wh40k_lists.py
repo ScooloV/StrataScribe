@@ -15,7 +15,7 @@ ignore_phases_list = []
 valid_stratagems_type = ["Battle Tactic Stratagem", "Strategic Ploy Stratagem", "Epic Deed Stratagem", "Requisition Stratagem", "Wargear Stratagem", "Core Stratagem"]
 invalid_stratagems_type = ["(Supplement)", "Crusher Stampede", "Crusade", "Fallen Angels"]
 
-unit_rename_dict = {"War Dog Brigand": "War Dog Brigand Squadron",
+unit_rename_dict = {"War Dog Brigand Squadron": "War Dog Brigand",
                     "War Dog Executioner Squadron": "War Dog Executioner",
                     "War Dog Huntsman Squadron": "War Dog Huntsman",
                     "War Dog Karnivore Squadron": "War Dog Karnivore",
