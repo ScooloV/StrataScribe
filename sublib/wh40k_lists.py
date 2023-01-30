@@ -19,5 +19,15 @@ unit_rename_dict = {"War Dog Brigand": "War Dog Brigand Squadron",
                     "War Dog Executioner Squadron": "War Dog Executioner",
                     "War Dog Huntsman Squadron": "War Dog Huntsman",
                     "War Dog Karnivore Squadron": "War Dog Karnivore",
-                    "War Dog Stalker Squadron": "War Dog Stalker"
+                    "War Dog Stalker Squadron": "War Dog Stalker",
+                    "Armiger Helverins": "Armiger Helverin",
+                    "Armiger Warglaives": "Armiger Warglaive"
                     }
+
+subfaction_rename_dict = {"Order: Our Martyred Lady": "Order of Our Martyred Lady",
+                          "Order: Argent Shroud": "Order of the Argent Shroud",
+                          "Order: Bloody Rose": "Order of the Bloody Rose",
+                          "Order: Ebon Chalice": "Order of the Ebon Chalice",
+                          "Order: Sacred Rose": "Order of the Sacred Rose",
+                          "Order: Valorous Heart": "Order of the Valorous Heart"
+                          }
