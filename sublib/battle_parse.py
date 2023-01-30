@@ -176,7 +176,9 @@ def _find_faction():
                         subfaction_names.append(selection["selections"]["selection"]["@name"].replace("'", ""))
                     for faction in _factions_dict:
                         for subfaction_name in subfaction_names:
-                            if faction["name"] in subfaction_name or subfaction_name in faction["name"]:
+                            if faction["name"] in subfaction_name \
+                                    or subfaction_name in faction["name"] \
+                                    or wh40k_lists.subfaction_rename_dict.get(subfaction_name) == faction["name"]:
                                 force_faction = faction
                                 break
 
