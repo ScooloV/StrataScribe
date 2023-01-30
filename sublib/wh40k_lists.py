@@ -15,9 +15,20 @@ ignore_phases_list = []
 valid_stratagems_type = ["Battle Tactic Stratagem", "Strategic Ploy Stratagem", "Epic Deed Stratagem", "Requisition Stratagem", "Wargear Stratagem", "Core Stratagem"]
 invalid_stratagems_type = ["(Supplement)", "Crusher Stampede", "Crusade", "Fallen Angels"]
 
-unit_rename_dict = {"War Dog Brigand": "War Dog Brigand Squadron",
+unit_rename_dict = {"War Dog Brigand Squadron": "War Dog Brigand",
                     "War Dog Executioner Squadron": "War Dog Executioner",
                     "War Dog Huntsman Squadron": "War Dog Huntsman",
                     "War Dog Karnivore Squadron": "War Dog Karnivore",
-                    "War Dog Stalker Squadron": "War Dog Stalker"
+                    "War Dog Stalker Squadron": "War Dog Stalker",
+                    "Armiger Helverins": "Armiger Helverin",
+                    "Armiger Warglaives": "Armiger Warglaive",
+                    "Knight Moiraxes": "Knight Moirax"
                     }
+
+subfaction_rename_dict = {"Order: Our Martyred Lady": "Order of Our Martyred Lady",
+                          "Order: Argent Shroud": "Order of the Argent Shroud",
+                          "Order: Bloody Rose": "Order of the Bloody Rose",
+                          "Order: Ebon Chalice": "Order of the Ebon Chalice",
+                          "Order: Sacred Rose": "Order of the Sacred Rose",
+                          "Order: Valorous Heart": "Order of the Valorous Heart"
+                          }
