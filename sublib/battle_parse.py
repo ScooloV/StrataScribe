@@ -169,18 +169,19 @@ def _find_faction():
         if not is_subfaction:
             for selection in roster_elem["selections"]["selection"]:
                 if selection["@name"] in wh40k_lists.subfaction_types:
-                    if type(selection["selections"]["selection"]) == list:
-                        for element in selection["selections"]["selection"]:
-                            subfaction_names.append(element["@name"].replace("'", ""))
-                    else:
-                        subfaction_names.append(selection["selections"]["selection"]["@name"].replace("'", ""))
-                    for faction in _factions_dict:
-                        for subfaction_name in subfaction_names:
-                            if faction["name"] in subfaction_name \
-                                    or subfaction_name in faction["name"] \
-                                    or wh40k_lists.subfaction_rename_dict.get(subfaction_name) == faction["name"]:
-                                force_faction = faction
-                                break
+                    if selection.get("selections") != None:
+                        if type(selection["selections"]["selection"]) == list:
+                            for element in selection["selections"]["selection"]:
+                                subfaction_names.append(element["@name"].replace("'", ""))
+                        else:
+                            subfaction_names.append(selection["selections"]["selection"]["@name"].replace("'", ""))
+                        for faction in _factions_dict:
+                            for subfaction_name in subfaction_names:
+                                if faction["name"] in subfaction_name \
+                                        or subfaction_name in faction["name"] \
+                                        or wh40k_lists.subfaction_rename_dict.get(subfaction_name) == faction["name"]:
+                                    force_faction = faction
+                                    break
 
         result_faction.append(force_faction)
     return result_faction
@@ -412,7 +413,7 @@ def _delete_old_files():
 
 def _get_dict_from_xml(xml_file_name):
     xml_file_path = os.path.join(battlescribe_folder, xml_file_name)
-    with open(xml_file_path) as xml_file:
+    with open(xml_file_path, errors='ignore') as xml_file:
         data_dict = xmltodict.parse(xml_file.read())
         return data_dict
 
