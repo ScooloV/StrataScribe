@@ -27,6 +27,7 @@ _full_stratagems_list = []
 # WebUI options dictionary
 _request_options = {}
 
+
 def init_parse():
     """
     Initialize the parse by reading all csv files to dictionary format and creating the battlescribe folder if it does not exist
@@ -109,7 +110,7 @@ def _get_full_stratagems_list():
 
     full_list = []
     for stratagem_id in sorted_stratagems_list:
-        clean_stratagem = _clean_full_stratagem(_get_stratagem_from_id(stratagem_id))
+        clean_stratagem = _clean_full_stratagem(_get_stratagem_from_id(stratagem_id, clean_stratagem=True))
         full_list.append(clean_stratagem)
 
     return full_list
@@ -321,10 +322,10 @@ def _prepare_stratagems_units(stratagems_id, units_id, faction_id):
     return results_stratagems_units
 
 
-def _get_stratagem_from_id(stratagem_id, stratagems_list=None, units_list=None):
+def _get_stratagem_from_id(stratagem_id, stratagems_list=None, units_list=None, clean_stratagem=None):
     for stratagem in _stratagems_dict:
         if stratagem["id"] == stratagem_id:
-            if _request_options is not None:
+            if _request_options is not None and clean_stratagem is None:
                 if _request_options.get("show_units") == "on" and units_list is not None:
                     result_stratagem = dict(stratagem)
                     for stratagem_elem in stratagems_list:
