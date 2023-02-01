@@ -173,7 +173,7 @@ def _find_faction():
         if not is_subfaction:
             for selection in roster_elem["selections"]["selection"]:
                 if selection["@name"] in wh40k_lists.subfaction_types:
-                    if selection.get("selections") != None:
+                    if selection.get("selections") is not None:
                         if type(selection["selections"]["selection"]) == list:
                             for element in selection["selections"]["selection"]:
                                 subfaction_names.append(element["@name"].replace("'", ""))
@@ -325,7 +325,7 @@ def _prepare_stratagems_units(stratagems_id, units_id, faction_id):
 def _get_stratagem_from_id(stratagem_id, stratagems_list=None, units_list=None, clean_stratagem=None):
     for stratagem in _stratagems_dict:
         if stratagem["id"] == stratagem_id:
-            if _request_options is not None and clean_stratagem is None:
+            if _request_options is not None and clean_stratagem is not True:
                 if _request_options.get("show_units") == "on" and units_list is not None:
                     result_stratagem = dict(stratagem)
                     for stratagem_elem in stratagems_list:
