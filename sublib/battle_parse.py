@@ -24,6 +24,8 @@ _roster_list = []
 _empty_stratagems_list = []
 _full_stratagems_list = []
 
+# WebUI options dictionary
+_request_options = {}
 
 def init_parse():
     """
@@ -50,7 +52,7 @@ def parse_battlescribe(battlescribe_file_name, request_options):
     """
     Parse the battlescribe file and returns the result in the form of a list of dictionaries and a list of lists
     """
-    global _full_stratagems_list
+    global _full_stratagems_list, _request_options
 
     if wahapedia_db.init_db() is True:
         init_parse()
@@ -58,6 +60,7 @@ def parse_battlescribe(battlescribe_file_name, request_options):
     _full_stratagems_list = []
     wh_empty_stratagems = []
     wh_core_stratagems = []
+    _request_options = request_options
 
     _read_ros_file(battlescribe_file_name)
     _prepare_roster_list()
@@ -65,13 +68,13 @@ def parse_battlescribe(battlescribe_file_name, request_options):
     wh_faction = _find_faction()
     wh_units = _find_units(wh_faction)
 
-    if request_options.get("show_empty") == "on":
+    if _request_options.get("show_empty") == "on":
         wh_empty_stratagems = _filter_empty_stratagems(wh_faction)
 
-    if request_options.get("show_core") == "on":
+    if _request_options.get("show_core") == "on":
         wh_core_stratagems = _filter_core_stratagems()
 
-    if request_options.get("dont_show_before") == "on":
+    if _request_options.get("dont_show_before") == "on":
         wh40k_lists.ignore_phases_list.append("Before battle")
 
     wh_stratagems = _find_stratagems(wh_units)
@@ -84,8 +87,8 @@ def parse_battlescribe(battlescribe_file_name, request_options):
         if len(wh_empty_stratagems) != 0:
             current_empty_stratagems = wh_empty_stratagems[id]
 
-        current_id_phase = _prepare_stratagems_phase(wh_stratagems[id] + current_empty_stratagems + wh_core_stratagems, wh_units[id], wh_faction[id], request_options)
-        currend_id_units = _prepare_stratagems_units(wh_stratagems[id] + current_empty_stratagems + wh_core_stratagems, wh_units[id], wh_faction[id], request_options)
+        current_id_phase = _prepare_stratagems_phase(wh_stratagems[id] + current_empty_stratagems + wh_core_stratagems, wh_units[id], wh_faction[id])
+        currend_id_units = _prepare_stratagems_units(wh_stratagems[id] + current_empty_stratagems + wh_core_stratagems, wh_units[id], wh_faction[id])
         result_phase.append(current_id_phase)
         result_units.append(currend_id_units)
 
@@ -261,14 +264,14 @@ def _find_stratagems(units_ids):
     return stratagems_list
 
 
-def _prepare_stratagems_phase(stratagems_id, units_id, faction_id, show_option=None):
+def _prepare_stratagems_phase(stratagems_id, units_id, faction_id):
     global _full_stratagems_list
     result_stratagems_phase = {}
     for stratagem_id in stratagems_id:
         if _stratagem_is_valid(stratagem_id["stratagem_id"]):
             for stratagem_phase in _stratagem_phases_dict:
                 if stratagem_phase["stratagem_id"] == stratagem_id["stratagem_id"]:
-                    full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"], stratagems_id, units_id, show_option)
+                    full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"], stratagems_id, units_id)
                     if full_stratagem["subfaction_id"] == "" \
                             or full_stratagem["subfaction_id"] == full_stratagem["faction_id"] \
                             or full_stratagem["subfaction_id"] == faction_id["id"]:
@@ -288,20 +291,20 @@ def _prepare_stratagems_phase(stratagems_id, units_id, faction_id, show_option=N
     return result_stratagems_phase
 
 
-def _prepare_stratagems_units(stratagems_id, units_id, faction_id, show_option=None):
+def _prepare_stratagems_units(stratagems_id, units_id, faction_id):
     global _full_stratagems_list
     results_stratagems_units = {}
     for stratagem_id in stratagems_id:
         if _stratagem_is_valid(stratagem_id["stratagem_id"]):
             for unit_id in units_id:
                 if stratagem_id["datasheet_id"] == unit_id["id"]:
-                    full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"], show_option=show_option)
+                    full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"])
                     if full_stratagem["subfaction_id"] == "" \
                             or full_stratagem["subfaction_id"] == full_stratagem["faction_id"] \
                             or full_stratagem["subfaction_id"] == faction_id["id"]:
 
                         unit_id_name = unit_id["name"]
-                        if "show_units" in show_option and show_option["show_units"] == "on":
+                        if _request_options.get("show_units") == "on":
                             unit_id_name = "[" + str(units_id.index(unit_id) + 1) + "] " + unit_id_name
 
                         if unit_id_name not in results_stratagems_units:
@@ -318,11 +321,11 @@ def _prepare_stratagems_units(stratagems_id, units_id, faction_id, show_option=N
     return results_stratagems_units
 
 
-def _get_stratagem_from_id(stratagem_id, stratagems_list=None, units_list=None, show_option=None):
+def _get_stratagem_from_id(stratagem_id, stratagems_list=None, units_list=None):
     for stratagem in _stratagems_dict:
         if stratagem["id"] == stratagem_id:
-            if show_option is not None:
-                if "show_units" in show_option and show_option["show_units"] == "on" and units_list is not None:
+            if _request_options is not None:
+                if _request_options.get("show_units") == "on" and units_list is not None:
                     result_stratagem = dict(stratagem)
                     for stratagem_elem in stratagems_list:
                         if stratagem_elem["stratagem_id"] == stratagem_id:
@@ -330,7 +333,7 @@ def _get_stratagem_from_id(stratagem_id, stratagems_list=None, units_list=None, 
                                 if unit_elem["id"] == stratagem_elem["datasheet_id"]:
                                     result_stratagem["name"] += " [" + str(units_list.index(unit_elem) + 1) + "]"
                     return result_stratagem
-                elif "show_phases" in show_option and show_option["show_phases"] == "on" and units_list is None:
+                elif _request_options.get("show_phases") == "on" and units_list is None:
                     result_stratagem = dict(stratagem)
                     for stratagem_phase in _stratagem_phases_dict:
                         if stratagem_phase["stratagem_id"] == stratagem_id:
@@ -347,6 +350,11 @@ def _stratagem_is_valid(stratagem_id):
     for invalid_stratagem_type in wh40k_lists.invalid_stratagems_type:
         if invalid_stratagem_type in stratagem_type:
             return False
+
+    if _request_options.get("show_renown") != "on":
+        for army_of_renown_name in wh40k_lists.army_of_renown_list:
+            if army_of_renown_name in full_stratagem["type"]:
+                return False
 
     if _get_stratagem_phase(stratagem_id) in wh40k_lists.ignore_phases_list:
         return False

@@ -32,3 +32,6 @@ subfaction_rename_dict = {"Order: Our Martyred Lady": "Order of Our Martyred Lad
                           "Order: Sacred Rose": "Order of the Sacred Rose",
                           "Order: Valorous Heart": "Order of the Valorous Heart"
                           }
+
+army_of_renown_list = ["Kill Team Strike Force", "Vanguard Spearhead", "Mechanicus Defence Cohort", "Skitarii Veteran Cohort", "Freeblade Lance", "Disciples of Belakor",
+                       "Terminus Est Assault Force", "Warpmeld Pact", "Coteries of the Haemonculi", "Cult of the Cryptek", "Annihilation Legion", "Speed Freeks Speed Mob", ]
