@@ -379,10 +379,15 @@ def _get_stratagem_phase(stratagem_id):
 
 def _get_faction_name(catalogue_name):
     catalogue_array = _remove_symbol(catalogue_name.split(" - "), "'")
-    if catalogue_array[-1] == "Craftworlds":
-        return catalogue_array[0]
+    faction_name = catalogue_array[-1]
 
-    return catalogue_array[-1]
+    if catalogue_array[-1] == "Craftworlds":
+        faction_name = catalogue_array[0]
+
+    if faction_name in wh40k_lists.subfaction_rename_dict:
+        faction_name = wh40k_lists.subfaction_rename_dict.get(faction_name)
+
+    return faction_name
 
 
 # compares battlescribe and wahapedia names according to rename dictionary
