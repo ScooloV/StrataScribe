@@ -296,6 +296,14 @@ def _prepare_stratagems_phase(stratagems_id, units_id, faction_id):
 def _prepare_stratagems_units(stratagems_id, units_id, faction_id):
     global _full_stratagems_list
     results_stratagems_units = {}
+    # filling results
+    for unit_id in units_id:
+        unit_id_name = unit_id["name"]
+        if _request_options.get("show_units") == "on":
+            unit_id_name = "[" + str(units_id.index(unit_id) + 1) + "] " + unit_id_name
+        results_stratagems_units[unit_id_name] = []
+
+    # assigning stratagems to units it belongs
     for stratagem_id in stratagems_id:
         if _stratagem_is_valid(stratagem_id["stratagem_id"]):
             for unit_id in units_id:
@@ -309,16 +317,10 @@ def _prepare_stratagems_units(stratagems_id, units_id, faction_id):
                         if _request_options.get("show_units") == "on":
                             unit_id_name = "[" + str(units_id.index(unit_id) + 1) + "] " + unit_id_name
 
-                        if unit_id_name not in results_stratagems_units:
-                            # results_stratagems_units[unit_id["name"]] = [stratagem_id["stratagem_id"]]
-                            results_stratagems_units[unit_id_name] = [full_stratagem["name"]]
-                            if full_stratagem["id"] not in _full_stratagems_list:
-                                _full_stratagems_list.append(full_stratagem["id"])
-                        else:
-                            # results_stratagems_units[unit_id["name"]].append(stratagem_id["stratagem_id"])
-                            results_stratagems_units[unit_id_name].append(full_stratagem["name"])
-                            if full_stratagem["id"] not in _full_stratagems_list:
-                                _full_stratagems_list.append(full_stratagem["id"])
+                        # results_stratagems_units[unit_id["name"]].append(stratagem_id["stratagem_id"])
+                        results_stratagems_units[unit_id_name].append(full_stratagem["name"])
+                        if full_stratagem["id"] not in _full_stratagems_list:
+                            _full_stratagems_list.append(full_stratagem["id"])
 
     return results_stratagems_units
 
@@ -385,11 +387,12 @@ def _get_faction_name(catalogue_name):
 
 # compares battlescribe and wahapedia names according to rename dictionary
 def _compare_unit_names(wahapedia_name, battlescribe_name):
-    if battlescribe_name in wh40k_lists.unit_rename_dict:
-        if wh40k_lists.unit_rename_dict[battlescribe_name] == wahapedia_name:
+    clean_battlescribe_name = battlescribe_name.replace("'", "")
+    if clean_battlescribe_name in wh40k_lists.unit_rename_dict:
+        if wh40k_lists.unit_rename_dict[clean_battlescribe_name] == wahapedia_name:
             return True
 
-    if wahapedia_name == battlescribe_name:
+    if wahapedia_name == clean_battlescribe_name:
         return True
 
     return False

@@ -3,7 +3,7 @@ subfaction_types = ["Order Convictions", "Forge World Choice", "Brotherhood", "N
                     "Cult of the Legion", "Craftworld Selection", "Kabal", "Wych Cult",
                     "Haemonculus Coven", "Cult Creed", "League", "Dynasty Choice", "Clan Kultur", "Sept Choice", "Hive Fleet"]
 
-selection_non_unit_types = ["**Chapter Selector**", "Game Type", "Detachment Command Cost", "Battle Size"]
+selection_non_unit_types = ["**Chapter Selector**", "Game Type", "Detachment Command Cost", "Battle Size", "Arks of Omen Compulsory Type"]
 
 phases_list = ["Any time", "Before battle", "During deployment", "At the start of battle round", "Any phase", "Any of your phases", "At the start of your turn",
                "At the start of enemy turn", "Command phase", "Enemy Command phase", "Movement phase", "Enemy Movement phase", "Psychic phase",
