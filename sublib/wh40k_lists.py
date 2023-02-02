@@ -34,6 +34,7 @@ unit_rename_dict = {"War Dog Brigand Squadron": "War Dog Brigand",
                     "Cthonian Beserks w/ heavy plasma axes": "Cthonian Beserks",
                     "Cthonian Beserks w/ concussion mauls": "Cthonian Beserks",
                     "Hearthkyn Warriors w/ ion blasters": "Hearthkyn Warriors",
+                    "Hearthkyn Warriors w/ bolters": "Hearthkyn Warriors",
                     "Ã›thar the Destined": "thar the Destined",
                     "BrÃ´khyr Iron-master": "Brkhyr Iron-master"
                     }
