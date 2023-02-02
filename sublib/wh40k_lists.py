@@ -22,7 +22,21 @@ unit_rename_dict = {"War Dog Brigand Squadron": "War Dog Brigand",
                     "War Dog Stalker Squadron": "War Dog Stalker",
                     "Armiger Helverins": "Armiger Helverin",
                     "Armiger Warglaives": "Armiger Warglaive",
-                    "Knight Moiraxes": "Knight Moirax"
+                    "Knight Moiraxes": "Knight Moirax",
+                    "KÃ¢hl": "Khl",
+                    "BrÃ´khyr Thunderkyn w/ bolt cannons": "Brkhyr Thunderkyn",
+                    "BrÃ´khyr Thunderkyn w/ graviton blast cannons": "Brkhyr Thunderkyn",
+                    "BrÃ´khyr Thunderkyn  w/ SP conversion beamers": "Brkhyr Thunderkyn",
+                    "Hearthguard w/ disintegrators and plasma blade gauntlets": "Einhyr Hearthguard",
+                    "Hearthguard w/ disintegrators and concussion gauntlets": "Einhyr Hearthguard",
+                    "Hearthguard w/ plasma guns and concussion gauntlets": "Einhyr Hearthguard",
+                    "Hearthguard w/ plasma guns and plasma blade gauntlets": "Einhyr Hearthguard",
+                    "Cthonian Beserks w/ heavy plasma axes": "Cthonian Beserks",
+                    "Cthonian Beserks w/ concussion mauls": "Cthonian Beserks",
+                    "Hearthkyn Warriors w/ ion blasters": "Hearthkyn Warriors",
+                    "Hearthkyn Warriors w/ bolters": "Hearthkyn Warriors",
+                    "Ã›thar the Destined": "thar the Destined",
+                    "BrÃ´khyr Iron-master": "Brkhyr Iron-master"
                     }
 
 subfaction_rename_dict = {"Order: Our Martyred Lady": "Order of Our Martyred Lady",
