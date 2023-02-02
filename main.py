@@ -44,7 +44,8 @@ def about_html():
     return render_template("about.html")
 
 
+wahapedia_db.init_db()
+battle_parse.init_parse()
+
 if __name__ == '__main__':
-    wahapedia_db.init_db()
-    battle_parse.init_parse()
     app.run(host="0.0.0.0", debug=False)

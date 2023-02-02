@@ -10,9 +10,6 @@ app = Flask(__name__)
 
 upload_directory = os.path.abspath("./battlescribe")
 
-wahapedia_db.init_db()
-battle_parse.init_parse()
-
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -45,3 +42,10 @@ def upload_file():
 @app.route('/about', methods=['GET', 'POST'])
 def about_html():
     return render_template("about.html")
+
+
+wahapedia_db.init_db()
+battle_parse.init_parse()
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", debug=False)
