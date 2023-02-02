@@ -198,13 +198,14 @@ def _find_units(faction_ids):
         result_units = []
         faction_id = faction_ids[id]
         roster_force = _roster_list[id]
-        for unit in roster_force["selections"]["selection"]:
-            if unit["@name"] not in wh40k_lists.selection_non_unit_types:
-                for datasheet in _datasheets_dict:
-                    if faction_id["id"] == datasheet["faction_id"] or faction_id["parent_id"] == datasheet["faction_id"]:
-                        if _compare_unit_names(datasheet["name"], unit["@name"]):
-                            if datasheet not in result_units:
-                                result_units.append(datasheet)
+        if roster_force.get("selections") is not None:
+            for unit in roster_force["selections"]["selection"]:
+                if unit["@name"] not in wh40k_lists.selection_non_unit_types:
+                    for datasheet in _datasheets_dict:
+                        if faction_id["id"] == datasheet["faction_id"] or faction_id["parent_id"] == datasheet["faction_id"]:
+                            if _compare_unit_names(datasheet["name"], unit["@name"]):
+                                if datasheet not in result_units:
+                                    result_units.append(datasheet)
         total_units.append(result_units)
 
     return total_units
