@@ -270,7 +270,7 @@ def _prepare_stratagems_phase(stratagems_id, units_id, faction_id):
     global _full_stratagems_list
     result_stratagems_phase = {}
     for stratagem_id in stratagems_id:
-        if _stratagem_is_valid(stratagem_id["stratagem_id"]):
+        if _stratagem_is_valid(stratagem_id["stratagem_id"], faction_id):
             for stratagem_phase in _stratagem_phases_dict:
                 if stratagem_phase["stratagem_id"] == stratagem_id["stratagem_id"]:
                     full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"], stratagems_id, units_id)
@@ -305,7 +305,7 @@ def _prepare_stratagems_units(stratagems_id, units_id, faction_id):
 
     # assigning stratagems to units it belongs
     for stratagem_id in stratagems_id:
-        if _stratagem_is_valid(stratagem_id["stratagem_id"]):
+        if _stratagem_is_valid(stratagem_id["stratagem_id"], faction_id):
             for unit_id in units_id:
                 if stratagem_id["datasheet_id"] == unit_id["id"]:
                     full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"])
@@ -347,26 +347,42 @@ def _get_stratagem_from_id(stratagem_id, stratagems_list=None, units_list=None, 
             return stratagem
 
 
-def _stratagem_is_valid(stratagem_id):
+def _stratagem_is_valid(stratagem_id, faction_id = None):
     full_stratagem = _get_stratagem_from_id(stratagem_id)
     stratagem_type = full_stratagem["type"]
-
+    # filtering by invalid stratagem type
     for invalid_stratagem_type in wh40k_lists.invalid_stratagems_type:
         if invalid_stratagem_type in stratagem_type:
             return False
 
+    # filtering army of renown stratagems
     if _request_options.get("show_renown") != "on":
         for army_of_renown_name in wh40k_lists.army_of_renown_list:
             if army_of_renown_name in full_stratagem["type"]:
                 return False
 
+    # if some phases are ignored
     if _get_stratagem_phase(stratagem_id) in wh40k_lists.ignore_phases_list:
         return False
 
+    # temp solution before everything is fixed for Aeldari and Orks
+    if faction_id is not None:
+        # Aeldari subfaction stratagems
+        if faction_id["id"] == "AE" or faction_id["parent_id"] == "AE":
+            stratagem_type_brackets = _get_bracket_text(full_stratagem["type"])
+            if stratagem_type_brackets is not None:
+                if faction_id["is_subfaction"] == False:
+                    return False
+                elif faction_id["name"] != stratagem_type_brackets:
+                    return False
+
+    # filtering by valid stratagem types
     if stratagem_type != "Stratagem":
         for valid_stratagem_type in wh40k_lists.valid_stratagems_type:
             if valid_stratagem_type in stratagem_type:
                 return True
+
+
 
     return False
 
@@ -438,3 +454,10 @@ def _get_dict_from_xml(xml_file_name):
 
 def _remove_symbol(arr, symbol):
     return [word.replace(symbol, '') for word in arr]
+
+def _get_bracket_text(string):
+    start_index = string.find("(")
+    end_index = string.find(")")
+    if start_index == -1 or end_index == -1:
+        return None
+    return string[start_index+1:end_index]
