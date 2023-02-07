@@ -39,6 +39,7 @@ def init_parse():
     _factions_dict = wahapedia_db.get_dict_from_csv("Factions.csv")
     _stratagem_phases_dict = wahapedia_db.get_dict_from_csv("StratagemPhases.csv")
     _stratagems_dict = wahapedia_db.get_dict_from_csv("Stratagems.csv")
+    _fix_stratagem_dict()
 
     # folder for battlescribe files should exist
     if not os.path.exists(battlescribe_folder):
@@ -270,7 +271,7 @@ def _prepare_stratagems_phase(stratagems_id, units_id, faction_id):
     global _full_stratagems_list
     result_stratagems_phase = {}
     for stratagem_id in stratagems_id:
-        if _stratagem_is_valid(stratagem_id["stratagem_id"], faction_id):
+        if _stratagem_is_valid(stratagem_id["stratagem_id"]):
             for stratagem_phase in _stratagem_phases_dict:
                 if stratagem_phase["stratagem_id"] == stratagem_id["stratagem_id"]:
                     full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"], stratagems_id, units_id)
@@ -305,7 +306,7 @@ def _prepare_stratagems_units(stratagems_id, units_id, faction_id):
 
     # assigning stratagems to units it belongs
     for stratagem_id in stratagems_id:
-        if _stratagem_is_valid(stratagem_id["stratagem_id"], faction_id):
+        if _stratagem_is_valid(stratagem_id["stratagem_id"]):
             for unit_id in units_id:
                 if stratagem_id["datasheet_id"] == unit_id["id"]:
                     full_stratagem = _get_stratagem_from_id(stratagem_id["stratagem_id"])
@@ -347,7 +348,7 @@ def _get_stratagem_from_id(stratagem_id, stratagems_list=None, units_list=None, 
             return stratagem
 
 
-def _stratagem_is_valid(stratagem_id, faction_id = None):
+def _stratagem_is_valid(stratagem_id):
     full_stratagem = _get_stratagem_from_id(stratagem_id)
     stratagem_type = full_stratagem["type"]
     # filtering by invalid stratagem type
@@ -365,24 +366,11 @@ def _stratagem_is_valid(stratagem_id, faction_id = None):
     if _get_stratagem_phase(stratagem_id) in wh40k_lists.ignore_phases_list:
         return False
 
-    # temp solution before everything is fixed for Aeldari and Orks
-    if faction_id is not None:
-        # Aeldari subfaction stratagems
-        if faction_id["id"] == "AE" or faction_id["parent_id"] == "AE":
-            stratagem_type_brackets = _get_bracket_text(full_stratagem["type"])
-            if stratagem_type_brackets is not None:
-                if faction_id["is_subfaction"] == False:
-                    return False
-                elif faction_id["name"] != stratagem_type_brackets:
-                    return False
-
     # filtering by valid stratagem types
     if stratagem_type != "Stratagem":
         for valid_stratagem_type in wh40k_lists.valid_stratagems_type:
             if valid_stratagem_type in stratagem_type:
                 return True
-
-
 
     return False
 
@@ -404,6 +392,37 @@ def _get_faction_name(catalogue_name):
         faction_name = wh40k_lists.subfaction_rename_dict.get(faction_name)
 
     return faction_name
+
+
+# some fix for current (february 2023) csv
+def _fix_stratagem_dict():
+    global _stratagems_dict
+    for stratagem_csv in _stratagems_dict:
+        # fix for Aeldari
+        if stratagem_csv["faction_id"] == "AE":
+            stratagem_type_brackets = _get_bracket_text(stratagem_csv["type"])
+            match stratagem_type_brackets:
+                case "Alaitoc":
+                    stratagem_csv["subfaction_id"] = "CWAL"
+                case "Altansar":
+                    stratagem_csv["subfaction_id"] = "CWAR"
+                case "Biel-Tan":
+                    stratagem_csv["subfaction_id"] = "CWBT"
+                case "Harlequins":
+                    stratagem_csv["subfaction_id"] = "CWHA"
+                case "Iyanden":
+                    stratagem_csv["subfaction_id"] = "CWIY"
+                case "Saim-Hann":
+                    stratagem_csv["subfaction_id"] = "CWSH"
+                case "Ulthw":
+                    stratagem_csv["subfaction_id"] = "CWUL"
+        # fix for Orks
+        if stratagem_csv["faction_id"] == "ORK":
+            match stratagem_csv["name"]:
+                case "UNBRIDLED CARNAGE":
+                    stratagem_csv["subfaction_id"] = "CLGF"
+                case "DED SNEAKY":
+                    stratagem_csv["subfaction_id"] = "CLBA"
 
 
 # compares battlescribe and wahapedia names according to rename dictionary
@@ -455,9 +474,10 @@ def _get_dict_from_xml(xml_file_name):
 def _remove_symbol(arr, symbol):
     return [word.replace(symbol, '') for word in arr]
 
+
 def _get_bracket_text(string):
     start_index = string.find("(")
     end_index = string.find(")")
     if start_index == -1 or end_index == -1:
         return None
-    return string[start_index+1:end_index]
+    return string[start_index + 1:end_index]
