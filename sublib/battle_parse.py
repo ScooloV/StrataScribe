@@ -423,7 +423,15 @@ def _fix_stratagem_dict():
                     stratagem_csv["subfaction_id"] = "CLGF"
                 case "DED SNEAKY":
                     stratagem_csv["subfaction_id"] = "CLBA"
-
+        # fix for SM
+        if stratagem_csv["faction_id"] == "SM":
+            match stratagem_csv["name"]:
+                case "HONOURED BY MACRAGGE":
+                    stratagem_csv["subfaction_id"] = "CHUL"
+                case "GIFT OF THE KHANS":
+                    stratagem_csv["subfaction_id"] = "CHWS"
+                case "BEQUEATHED BY THE IRON COUNCIL":
+                    stratagem_csv["subfaction_id"] = "CHIH"
 
 # compares battlescribe and wahapedia names according to rename dictionary
 def _compare_unit_names(wahapedia_name, battlescribe_name):
