@@ -150,13 +150,20 @@ def _download_file(file_url, folder_name):
                     f.write(chunk)
         file_size = os.stat(save_path).st_size
         # Check if the file size is smaller than 2048 bytes, which could indicate that anti-spam is working
-        if file_size < 2048 and file_name != "Last_update.csv":
+        if file_size < 2048 and _is_html(save_path):
             print("Anti Spam is working. Waiting for 5 second to try again.")
             time.sleep(5)
         else:
             file_downloaded = True
 
     return save_path
+
+
+def _is_html(file_path):
+    html_string = "<!DOCTYPE html>"
+    with open(file_path, 'r', encoding='ascii', errors='ignore') as f:
+        content = f.read()
+        return html_string in content
 
 
 def get_dict_from_csv(csv_path):
