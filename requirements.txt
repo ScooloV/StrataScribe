@@ -3,3 +3,4 @@ flask
 requests
 json2html
 lxml
+bs4

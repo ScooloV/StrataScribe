@@ -1,6 +1,8 @@
 import os
 import pathlib
 import zipfile
+
+from bs4 import BeautifulSoup, Tag
 from datetime import datetime, timedelta
 
 import xmltodict
@@ -453,9 +455,16 @@ def _get_first_letters(line):
     return "".join(letters)
 
 
-def _clean_html(html_string):
-    # return html_string
-    return str(html.fromstring(html_string).text_content())
+def _clean_html(html_str):
+    ignore_tags = ["a", "span"]
+    soup = BeautifulSoup(html_str, 'html.parser')
+
+    for tag in ignore_tags:
+        for el in soup.find_all(tag):
+            if isinstance(el, Tag):
+                el.unwrap()
+
+    return str(soup)
 
 
 def _delete_old_files():
