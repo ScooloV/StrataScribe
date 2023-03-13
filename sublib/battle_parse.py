@@ -61,9 +61,12 @@ def parse_battlescribe(battlescribe_file_name, request_options):
     if wahapedia_db.init_db() is True:
         init_parse()
 
+    wh40k_lists.clean_list()
     _full_stratagems_list = []
     wh_empty_stratagems = []
     wh_core_stratagems = []
+    wh_army_of_renown = []
+
     _request_options = request_options
 
     _read_ros_file(battlescribe_file_name)
@@ -71,6 +74,9 @@ def parse_battlescribe(battlescribe_file_name, request_options):
 
     wh_faction = _find_faction()
     wh_units = _find_units(wh_faction)
+
+    if _request_options.get("dont_show_renown") != "on":
+        wh_army_of_renown = _find_army_of_renown()
 
     if _request_options.get("show_empty") == "on":
         wh_empty_stratagems = _filter_empty_stratagems(wh_faction)
@@ -91,8 +97,13 @@ def parse_battlescribe(battlescribe_file_name, request_options):
         if len(wh_empty_stratagems) != 0:
             current_empty_stratagems = wh_empty_stratagems[id]
 
-        current_id_phase = _prepare_stratagems_phase(wh_stratagems[id] + current_empty_stratagems + wh_core_stratagems, wh_units[id], wh_faction[id])
-        currend_id_units = _prepare_stratagems_units(wh_stratagems[id] + current_empty_stratagems + wh_core_stratagems, wh_units[id], wh_faction[id])
+        if len(wh_army_of_renown) != 0:
+            wh40k_lists.current_army_of_renown = wh_army_of_renown[id]
+
+        all_selected_stratagems = wh_stratagems[id] + current_empty_stratagems + wh_core_stratagems
+
+        current_id_phase = _prepare_stratagems_phase(all_selected_stratagems, wh_units[id], wh_faction[id])
+        currend_id_units = _prepare_stratagems_units(all_selected_stratagems, wh_units[id], wh_faction[id])
         result_phase.append(current_id_phase)
         result_units.append(currend_id_units)
 
@@ -193,6 +204,21 @@ def _find_faction():
         result_faction.append(force_faction)
     return result_faction
 
+
+def _find_army_of_renown():
+    result_army_of_renown = []
+    army_of_renown_name = None
+    for roster_elem in _roster_list:
+        for selection in roster_elem["selections"]["selection"]:
+            if "Army of Renown" == selection["@name"]:
+                army_of_renown_name = selection["selections"]["selection"]["@name"].replace("'", "")
+                break
+            elif "Army of Renown" in selection["@name"]:
+                army_of_renown_name = selection["@name"].replace("'", "")[17:]
+                break
+
+        result_army_of_renown.append(army_of_renown_name)
+    return result_army_of_renown
 
 def _find_units(faction_ids):
     total_units = []
@@ -358,10 +384,13 @@ def _stratagem_is_valid(stratagem_id):
         if invalid_stratagem_type in stratagem_type:
             return False
 
-    # filtering army of renown stratagems
-    if _request_options.get("show_renown") != "on":
+    # filtering army of renown stratagems (including current army of renown)
+    if _request_options.get("dont_show_renown") != "on":
+        if wh40k_lists.current_army_of_renown != "" and wh40k_lists.current_army_of_renown is not None:
+            if wh40k_lists.current_army_of_renown in stratagem_type:
+                return True
         for army_of_renown_name in wh40k_lists.army_of_renown_list:
-            if army_of_renown_name in full_stratagem["type"]:
+            if army_of_renown_name in stratagem_type:
                 return False
 
     # if some phases are ignored

@@ -8,7 +8,7 @@ selection_non_unit_types = ["**Chapter Selector**", "Game Type", "Detachment Com
 phases_list = ["Any time", "Before battle", "During deployment", "At the start of battle round", "Any phase", "Any of your phases", "At the start of your turn",
                "At the start of enemy turn", "Command phase", "Enemy Command phase", "Movement phase", "Enemy Movement phase", "Psychic phase",
                "Enemy Psychic phase", "Shooting phase", "Enemy Shooting phase", "Being targeted", "Charge phase", "Enemy Charge phase", "Fight phase",
-               "Enemy Fight phase", "Morale phase", "Enemy Morale phase", "Taking casualties", "Enemy taking casualties", "End of your turn"]
+               "Enemy Fight phase", "Morale phase", "Enemy Morale phase", "Taking casualties", "Enemy taking casualties", "End of your turn", "End of enemy turn"]
 
 ignore_phases_list = []
 
@@ -55,4 +55,12 @@ subfaction_rename_dict = {"Order: Our Martyred Lady": "Order of Our Martyred Lad
                           }
 
 army_of_renown_list = ["Kill Team Strike Force", "Vanguard Spearhead", "Mechanicus Defence Cohort", "Skitarii Veteran Cohort", "Freeblade Lance", "Disciples of Belakor",
-                       "Terminus Est Assault Force", "Warpmeld Pact", "Coteries of the Haemonculi", "Cult of the Cryptek", "Annihilation Legion", "Speed Freeks Speed Mob", ]
+                       "Terminus Est Assault Force", "Warpmeld Pact", "Coteries of the Haemonculi", "Cult of the Cryptek", "Annihilation Legion", "Speed Freeks Speed Mob",
+                       "Cogs of Vashtorr"]
+
+current_army_of_renown = ""
+
+def clean_list():
+    global ignore_phases_list, current_army_of_renown
+    ignore_phases_list = []
+    current_army_of_renown = ""
