@@ -42,7 +42,14 @@ unit_rename_dict = {"War Dog Brigand Squadron": "War Dog Brigand",
                     "Ûthar the Destined": "thar the Destined",
                     "Ã›thar the Destined": "thar the Destined",
                     "Brôkhyr Iron-master": "Brkhyr Iron-master",
-                    "BrÃ´khyr Iron-master": "Brkhyr Iron-master"
+                    "BrÃ´khyr Iron-master": "Brkhyr Iron-master",
+                    "Chapter Master": "Captain",
+                    "Chapter Master in Phobos Armour": "Captain in Phobos Armour",
+                    "Chapter Master in Terminator Armour": "Captain in Terminator Armour",
+                    "Chapter Master on Bike": "Captain on Bike",
+                    "Chapter Master with Master-crafted Heavy Bolt Rifle": "Captain with Master-crafted Heavy Bolt Rifle",
+                    "Primaris Chapter Master": "Primaris Captain",
+                    "Chapter Master in Gravis Armour": "Captain in Gravis Armour"
                     }
 
 subfaction_rename_dict = {"Order: Our Martyred Lady": "Order of Our Martyred Lady",
